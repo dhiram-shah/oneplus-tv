@@ -1,0 +1,11 @@
+tools/venv/
+tools/adbkey/
+tools/__pycache__/
+launcher/.gradle/
+launcher/build/
+launcher/app/build/
+launcher/local.properties
+# device identifiers (serial, android_id, device names) stay local
+backup/getprop.txt
+backup/settings.txt
+.DS_Store

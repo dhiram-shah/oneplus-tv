@@ -1,0 +1,36 @@
+# Packages disabled on the Mi TV (MiTV-MOOQ1, Android TV 10) on 2026-10-17.
+# Applied with: tools/tv.py --batch < debloat.txt   (after prefixing each line with "pm disable-user --user 0 ")
+# Everything here is DISABLED, not uninstalled. Reverse any line with: pm enable <package>
+
+# Xiaomi telemetry
+com.miui.tv.analytics
+com.xiaomi.statistic
+
+# PatchWall + Mi content rows
+com.mitv.tvhome.atv
+com.mitv.tvhome.michannel
+com.mitv.tvhome.mitvplus
+com.xm.webcontent
+com.xiaomi.floatingframe
+
+# Xiaomi background services
+com.xiaomi.mitv.tvmanager
+com.xiaomi.mitv.smartshare
+com.mitv.milinkservice
+com.xiaomi.mitv.updateservice      # re-enable to check for firmware updates
+com.xiaomi.amazon.alexa
+android.autoinstalls.config.xiaomi.amelie
+
+# Preloaded apps not used
+com.xiaomi.mimusic2
+com.google.android.play.games
+com.google.android.feedback
+com.google.android.apps.tachyon    # Google Duo
+fusion.android.tv.demo
+com.ipcloud.ashokadigital
+com.neotv.app
+
+# Google TV launcher, replaced by the custom launcher in launcher/ (com.gathin.tvhome)
+com.google.android.tvlauncher
+com.google.android.tvrecommendations
+com.google.android.leanbacklauncher.recommendations
