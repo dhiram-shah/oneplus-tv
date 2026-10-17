@@ -1,96 +1,102 @@
 # tv-vibehack
 
-Debloating a Xiaomi Mi TV 4A (`MiTV-MOOQ1`, codename `tarzan`, Android TV 10) over ADB, and
-replacing its launcher with a tiny custom one. Everything here was done in one afternoon with
-Claude Code talking to the real TV. The prompt to reproduce it on your own Android TV is in
-[`PROMPT.md`](PROMPT.md).
+**Your TV, minus the ads.** Debloat any Android TV / Google TV over ADB and give it a clean,
+tvOS-inspired launcher. Hand the prompt to Claude Code or any coding assistant, answer a few
+questions about which apps you use, and it does the rest on the real TV.
 
-| Before | After |
+| Stock home screen | After |
 |---|---|
-| ![Stock Google TV home with a sponsored ad](docs/stock-home.jpg) | ![Custom tvOS-style launcher](docs/new-home.jpg) |
+| ![Stock Google TV home with a sponsored ad](docs/stock-home.jpg) | ![tvOS-style launcher](docs/new-home.jpg) |
 
-## What was done (2026-10-17)
+Everything is reversible: packages are disabled, never uninstalled, and a restore script puts the
+stock launcher back.
 
-- Disabled 25 packages: Xiaomi analytics, PatchWall and its content rows, SmartShare, MiLink,
-  TV Manager, the update service, Alexa bridge, Mi Music, Play Games, Duo, demo apps and two
-  unused streaming apps. Full list with reasons in `debloat.txt`.
-- Uninstalled TV Bro browser at the user's request.
-- Replaced the Google TV launcher with a custom home screen (`launcher/`), see below.
-- Halved system animation durations.
-- Kept: Netflix, Prime Video, Hotstar, SonyLIV, Zee5, Aha, Roja, YouTube, Google Assistant,
-  Chromecast, Miracast, Mi media player.
+## Quick start
 
-Apart from TV Bro nothing was uninstalled; `./restore.sh` re-enables the disabled apps and the
-stock launcher.
+1. On the TV: Settings → Device Preferences → About → press OK on **Build** seven times → back →
+   Developer options → turn on **USB debugging** (and Network/ADB debugging if your TV shows it).
+   Keep the TV on and on the same Wi-Fi as your computer.
+2. Open Claude Code (or your assistant of choice) on your computer and paste the prompt from
+   [`PROMPT.md`](PROMPT.md), filling in your TV model.
+3. Accept the "Allow USB debugging?" prompt on the TV when told to, then answer the checklist
+   questions (which apps you use, which four go in the dock).
 
-## The launcher (`launcher/`)
+That's it. The assistant backs up, debloats, builds and installs the launcher, and verifies each
+step with screenshots from the TV. If you'd rather do it by hand, the pieces are below.
 
-A tvOS-style Android TV home screen, package `com.gathin.tvhome`:
+## What's in the repo
+
+| Path | What it is |
+|---|---|
+| [`PROMPT.md`](PROMPT.md) | The prompt. Brand-neutral; the assistant discovers your TV's bloat. |
+| [`launcher/`](launcher/) | The tvOS-style launcher. Edit `app/src/main/res/values/config.xml` for your dock, hidden apps and Live TV package, then run `build-and-install.sh`. |
+| [`tools/tv.py`](tools/tv.py) | Pure-Python ADB client (shell, batch, push, pull). Works where the stock `adb` is blocked. |
+| [`tools/b64push.py`](tools/b64push.py) | Uploads larger files (APKs) as base64 chunks with an md5 check. |
+| [`tools/disable.sh`](tools/disable.sh), [`tools/restore.sh`](tools/restore.sh) | Apply or undo a debloat list. |
+| [`examples/`](examples/) | Per-TV debloat lists. Add yours, see [CONTRIBUTING.md](CONTRIBUTING.md). |
+
+## The launcher
+
+A small native Android TV home screen (`com.gathin.tvhome`), built for sets with 1 GB of RAM:
 
 - Pitch-black background, like Apple TV 4K.
-- Top left: greeting, a large light clock with AM/PM and the date, set in the Outfit typeface
-  (`res/font/outfit.ttf`, SIL Open Font License, from Google Fonts).
-- Top right, frosted glass pills: **Inputs** (opens a glass dropdown under the pill listing
-  HDMI 1-3, AV and Live TV with icons; a port that reports a definite connected/disconnected
-  state shows it; selection switches via the TV input framework), **Wi-Fi** (shows the connected
-  network name, opens network settings) and **Settings**. Reading the network name needs location permission on Android 10; the install
-  script grants it over adb.
-- A pinned dock row at the bottom of the screen inside a lighter rounded band: Netflix, Prime
-  Video, YouTube, JioHotstar (order in `FAVOURITES` in `AppAdapter.java`). The shelf above shows
-  the focused dock app's name in large type with an ambient glow in a colour sampled from its
-  banner. Pressing Down scrolls the dock up and reveals the remaining apps alphabetically, 4 per
-  row; Up brings the dock back down.
-- One floating "liquid glass" highlight (`GlassView`) springs from tile to tile with a soft
-  overshoot instead of per-tile borders; the focused tile also scales up and, outside the dock,
-  shows its name underneath. Tiles animate in with a stagger.
-- Up/Down move exactly one row; Up from the dock goes to the top bar. Click launches, long-press
-  opens the app's info page. The last focused tile is remembered when you come back.
-  Live TV and Mi Gallery are hidden (edit `HIDDEN` in `AppAdapter.java`).
+- A dock at the bottom in a lighter rounded band with the four apps you choose. The shelf above
+  shows the focused dock app's name in large type with an ambient glow sampled from its banner.
+  Press Down and the dock slides up to reveal the rest of your apps in a grid.
+- One translucent glass highlight springs from tile to tile. The focused tile lifts and shows its
+  name.
+- Frosted pills top right: **Inputs** (a dropdown of HDMI ports, AV and Live TV), **Wi-Fi**
+  (shows the network name) and **Settings**. Greeting, a large thin clock and the date top left,
+  set in [Outfit](https://fonts.google.com/specimen/Outfit).
+- Deterministic D-pad navigation, last focused tile remembered, staggered entrance animation.
+  No blur, no video, no network, no background services.
 
-Build and install (needs JDK 17, Gradle and Android command-line tools from Homebrew, plus the
-Python venv under `tools/`):
+Configure it in [`launcher/app/src/main/res/values/config.xml`](launcher/app/src/main/res/values/config.xml):
+dock order, hidden apps, Live TV package and columns. Build and install with
 
 ```bash
-launcher/build-and-install.sh
+TV_HOST=192.168.1.50 launcher/build-and-install.sh
 ```
 
-Projectivy Launcher was tried first and dropped because custom wallpapers are a paid feature.
+Needs JDK 17 and the Android SDK (platform 34, build-tools 34.0.0). On macOS:
+`brew install openjdk@17 android-commandlinetools && sdkmanager "platforms;android-34" "build-tools;34.0.0"`.
 
-## Talking to the TV
-
-The stock `adb` binary is blocked by macOS "Local Network" privacy (it fails with
-`No route to host` even though the port is open). `tools/tv.py` is a pure-Python ADB client
-that works around this.
+## Talking to the TV by hand
 
 ```bash
 python3 -m venv tools/venv && tools/venv/bin/pip install -r tools/requirements.txt
-tools/venv/bin/python -I tools/tv.py --probe                    # device info
-tools/venv/bin/python -I tools/tv.py 'pm list packages -d'      # one command
-printf 'cmd1\ncmd2\n' | tools/venv/bin/python -I tools/tv.py --batch   # many commands, one connection
-tools/venv/bin/python -I tools/tv.py --pull /sdcard/screen.png screen.png
-tools/venv/bin/python -I tools/b64push.py local.apk /data/local/tmp/x.apk   # file upload
+export TV_HOST=192.168.1.50                                   # your TV's IP
+tools/venv/bin/python -I tools/tv.py --probe                 # model, Android version, firmware
+tools/venv/bin/python -I tools/tv.py 'pm list packages'      # one command
+printf 'cmd1\ncmd2\n' | tools/venv/bin/python -I tools/tv.py --batch
+tools/disable.sh examples/xiaomi-mi-tv-4a/debloat.txt        # apply a list
+tools/restore.sh examples/xiaomi-mi-tv-4a/debloat.txt        # undo it, restore stock launcher
 ```
 
-`--push` in tv.py only works for files under about 64 KB on this TV; `b64push.py` sends larger
-files as base64 chunks over the shell and verifies the md5.
+### Gotchas we hit
 
-The TV IP defaults to `192.168.0.131`; override with `TV_HOST=...`. USB debugging must be on
-(Settings → Device Preferences → About → tap Build 7 times → Developer options). On this model
-there is no separate wireless-debugging toggle; USB debugging opens network ADB on port 5555.
-The first connection shows an "Allow USB debugging?" prompt on the TV. The RSA key lives in
-`tools/adbkey/` (git-ignored).
+- **macOS: `adb connect` says "No route to host"** while the port is clearly open. Recent macOS
+  treats the Google-signed `adb` as its own app under Local Network privacy and silently blocks it.
+  `tools/tv.py` avoids the binary entirely.
+- **No "wireless debugging" toggle** on some TVs (Xiaomi among them). USB debugging alone opens
+  network ADB on port 5555.
+- **Chained `pm` commands** (`pm disable a; pm disable b`) may silently stop after the first. Run
+  one per shell call; `--batch` does this.
+- **Large pushes hang** through the Python client. Use `tools/b64push.py` for APKs.
+- **Disable the stock launcher only after the new one is installed**, or the Home button lands on
+  a factory test app.
+- **Third-party launchers** often charge for basics like a custom wallpaper. Hence `launcher/`.
 
-## Re-enable a single app
+## Supported TVs
 
-```bash
-tools/venv/bin/python -I tools/tv.py 'pm enable com.xiaomi.mitv.updateservice'
-```
+Anything running Android TV or Google TV: Xiaomi/Redmi, TCL, Hisense, Sony, OnePlus, Realme,
+Nvidia Shield and most others. Not Samsung Tizen, LG webOS or Amazon Fire TV (different OS, no ADB
+launcher replacement). Tested so far on the models in [`examples/`](examples/).
 
-## Backups
+## Contributing
 
-`backup/` holds the full package list captured before any change, plus the disabled lists before
-and after. The raw `getprop` and `settings` dumps are kept locally only (git-ignored) because they
-contain device identifiers.
+Add your TV's debloat list, improve the launcher, or sharpen the prompt. See
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence
 

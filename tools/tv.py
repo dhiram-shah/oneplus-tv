@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Minimal ADB-over-TCP shell runner for the Mi TV using adb_shell (no adb binary needed).
+"""Minimal ADB-over-TCP client for an Android TV using adb_shell (no adb binary needed).
 
-Usage: tv.py <shell command...>
-       tv.py --probe           (connect + print model/android version)
+Set TV_HOST to the TV's IP. Usage:
+    tv.py --probe                      connect and print model / Android version
+    tv.py <shell command...>           run one shell command
+    tv.py --batch < commands.txt       one command per line, same connection
+    tv.py --push <local> <remote>      small files only (see b64push.py for larger ones)
+    tv.py --pull <remote> <local>
 """
 import os
 import sys
@@ -11,8 +15,11 @@ from adb_shell.adb_device import AdbDeviceTcp
 from adb_shell.auth.keygen import keygen
 from adb_shell.auth.sign_pythonrsa import PythonRSASigner
 
-HOST = os.environ.get("TV_HOST", "192.168.0.131")
-PORT = 5555
+HOST = os.environ.get("TV_HOST")
+PORT = int(os.environ.get("TV_PORT", "5555"))
+if not HOST:
+    sys.exit("Set TV_HOST to your TV's IP address, e.g.  TV_HOST=192.168.1.50 tools/tv.py --probe\n"
+             "(find it under Settings → Network, or look for the TV in `arp -a`)")
 KEYDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "adbkey")
 KEY = os.path.join(KEYDIR, "adbkey")
 

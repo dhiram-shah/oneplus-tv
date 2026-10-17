@@ -64,31 +64,23 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         }
     }
 
-    /** Dock order, tvOS style top row. */
-    static final List<String> FAVOURITES = Arrays.asList(
-            "com.netflix.ninja",
-            "com.amazon.amazonvideo.livingroom",
-            "com.google.android.youtube.tv",
-            "in.startv.hotstar"
-    );
-
-    /** Apps that have their own button on the home screen or are not wanted as tiles. */
-    private static final Set<String> HIDDEN = new HashSet<>(Arrays.asList(
-            "com.mediatek.wwtv.tvcenter",   // Live TV: reachable via the Inputs button
-            "com.mitv.gallery"              // Mi Gallery
-    ));
-
     static final float FOCUS_SCALE = 1.10f;
 
     private final Context ctx;
     private final TileListener listener;
     private final int dockSize;
+    /** Dock order (res/values/config.xml, dock_apps). */
+    private final List<String> favourites;
+    /** Never shown as tiles (res/values/config.xml, hidden_apps). */
+    private final Set<String> hidden;
     private final List<Entry> items = new ArrayList<>();
 
     AppAdapter(Context ctx, TileListener listener, int dockSize) {
         this.ctx = ctx;
         this.listener = listener;
         this.dockSize = dockSize;
+        this.favourites = Arrays.asList(ctx.getResources().getStringArray(R.array.dock_apps));
+        this.hidden = new HashSet<>(Arrays.asList(ctx.getResources().getStringArray(R.array.hidden_apps)));
     }
 
     void reload() {
@@ -99,7 +91,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         for (ResolveInfo ri : found) {
             if (ri.activityInfo == null) continue;
             String pkg = ri.activityInfo.packageName;
-            if (pkg.equals(ctx.getPackageName()) || HIDDEN.contains(pkg)) continue;
+            if (pkg.equals(ctx.getPackageName()) || hidden.contains(pkg)) continue;
             Drawable banner = ri.activityInfo.loadBanner(pm);
             if (banner == null) banner = ri.activityInfo.applicationInfo.loadBanner(pm);
             Drawable icon = ri.loadIcon(pm);
@@ -107,7 +99,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             fresh.add(new Entry(label, new ComponentName(pkg, ri.activityInfo.name), banner, icon));
         }
         Collections.sort(fresh, (a, b) -> {
-            int fa = FAVOURITES.indexOf(a.pkg), fb = FAVOURITES.indexOf(b.pkg);
+            int fa = favourites.indexOf(a.pkg), fb = favourites.indexOf(b.pkg);
             if (fa >= 0 || fb >= 0) {
                 if (fa < 0) return 1;
                 if (fb < 0) return -1;
