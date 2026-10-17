@@ -7,7 +7,7 @@ Claude Code talking to the real TV. The prompt to reproduce it on your own Andro
 
 | Before | After |
 |---|---|
-| ![Stock Google TV home with a sponsored ad](docs/before.jpg) | ![Custom tvOS-style launcher](docs/after.jpg) |
+| ![Stock Google TV home with a sponsored ad](docs/stock-home.jpg) | ![Custom tvOS-style launcher](docs/new-home.jpg) |
 
 ## What was done (2026-10-17)
 
