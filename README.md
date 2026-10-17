@@ -86,6 +86,9 @@ tools/restore.sh examples/xiaomi-mi-tv-4a/debloat.txt        # undo it, restore 
 - **Disable the stock launcher only after the new one is installed**, or the Home button lands on
   a factory test app.
 - **Third-party launchers** often charge for basics like a custom wallpaper. Hence `launcher/`.
+- **No on-screen keyboard** after switching launchers (seen on Xiaomi): the default input method
+  pointed at a Baidu IME that isn't installed. Fix with
+  `tools/tv.py 'ime set com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME'`.
 
 ## Supported TVs
 

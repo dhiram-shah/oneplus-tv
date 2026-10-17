@@ -4,6 +4,9 @@
 # Apply:   TV_HOST=<tv ip> tools/disable.sh examples/xiaomi-mi-tv-4a/debloat.txt
 # Undo:    TV_HOST=<tv ip> tools/restore.sh examples/xiaomi-mi-tv-4a/debloat.txt
 # Everything is DISABLED, not uninstalled. Comment out any line you want to keep.
+#
+# Known quirk on this firmware: default_input_method points at com.baidu.input, which is not
+# installed, so no keyboard appears in search fields. Set Gboard as the IME (see README gotchas).
 
 # Xiaomi telemetry
 com.miui.tv.analytics
