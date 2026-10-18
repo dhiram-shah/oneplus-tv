@@ -76,7 +76,18 @@ script property `TOKEN`, deploy as a web app ("Execute as: Me", "Anyone"), and p
 `?k=<TOKEN>` in `local.properties`. On the Flent account, script properties `SUPABASE_URL`,
 `SUPABASE_SERVICE_KEY` and three PostgREST queries (`OCCUPANCY_PATH`, `WINS_PATH`, `VISITORS_PATH`,
 described in the file's header) add occupancy, wins and visitors. The key and the queries stay in
-the script's properties, not in this repo, and the TV only receives the numbers.
+the Apps Script project, not in this repo, and the TV only receives the numbers.
+
+Every setting can be a script property or an entry in a `Config.gs` that exists only in the Apps
+Script project (`var CONFIG = { TOKEN: '…', … }`; `prop()` checks properties first). That makes the
+whole setup scriptable with `clasp`, which can't set script properties:
+
+```bash
+clasp clone <script id>                     # in a scratch folder, never inside this repo
+cp ~/tv-vibehack/home/feed/Code.gs Code.js  # plus a Config.js with the settings
+clasp push --force
+clasp deploy -i <web app deployment id>     # same URL, new version
+```
 
 ## Configuration (`home/app/src/main/res/values/config.xml`)
 

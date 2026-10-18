@@ -2,7 +2,7 @@
  * TV feed: publishes this Google account's unread mail, today's + tomorrow's events and open tasks
  * as JSON for the living-room TV. Runs inside your own account; the TV only sees this JSON.
  *
- * Setup (once per account, ~2 min):
+ * Setup (once per account, ~2 min). Settings below can be script properties or a Config.gs (see prop()):
  *   1. script.google.com → New project → paste this file.
  *   2. Services (+) → add "Google Tasks API".
  *   3. Project Settings → Script properties → TOKEN = a long random string.
@@ -23,7 +23,7 @@ var CACHE_SECONDS = 240;
 var TOP_MAIL = 5;
 
 function doGet(e) {
-  var token = PropertiesService.getScriptProperties().getProperty('TOKEN');
+  var token = prop('TOKEN');
   if (!token || !e || !e.parameter || e.parameter.k !== token) {
     return json({ error: 'unauthorized' });
   }
@@ -38,7 +38,7 @@ function doGet(e) {
     events: safe(events),
     tasks: safe(tasks)
   };
-  if (PropertiesService.getScriptProperties().getProperty('SUPABASE_SERVICE_KEY')) out.flent = safe(flent);
+  if (prop('SUPABASE_SERVICE_KEY')) out.flent = safe(flent);
   var body = JSON.stringify(out);
   cache.put('feed', body, CACHE_SECONDS);
   return ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
@@ -110,8 +110,7 @@ function flent() {
   var hit = cache.get('flent');
   if (hit) return JSON.parse(hit);
 
-  var p = PropertiesService.getScriptProperties();
-  var snap = supabase(p.getProperty('OCCUPANCY_PATH'))[0];
+  var snap = supabase(prop('OCCUPANCY_PATH'))[0];
   var counts = (snap && snap.data && snap.data.counts) || {};
   var rooms = counts.rooms;
   var occupied = counts.occupied;
@@ -122,9 +121,9 @@ function flent() {
   var out = {
     occupied: occupied,
     rooms: rooms,
-    winsMonth: count(p.getProperty('WINS_PATH') + monthStart),
-    winsWeek: count(p.getProperty('WINS_PATH') + weekStart),
-    visitors7d: supabase(p.getProperty('VISITORS_PATH') + weekStart)
+    winsMonth: count(prop('WINS_PATH') + monthStart),
+    winsWeek: count(prop('WINS_PATH') + weekStart),
+    visitors7d: supabase(prop('VISITORS_PATH') + weekStart)
         .reduce(function (s, r) { return s + (r.visitors || 0); }, 0)
   };
   cache.put('flent', JSON.stringify(out), 900);
@@ -132,9 +131,8 @@ function flent() {
 }
 
 function supabase(path, headers) {
-  var p = PropertiesService.getScriptProperties();
-  var key = p.getProperty('SUPABASE_SERVICE_KEY');
-  var res = UrlFetchApp.fetch(p.getProperty('SUPABASE_URL') + '/rest/v1/' + path, {
+  var key = prop('SUPABASE_SERVICE_KEY');
+  var res = UrlFetchApp.fetch(prop('SUPABASE_URL') + '/rest/v1/' + path, {
     headers: Object.assign({ apikey: key, Authorization: 'Bearer ' + key }, headers || {}),
     muteHttpExceptions: true
   });
@@ -156,6 +154,16 @@ function istDate(offsetDays) {
 function senderName(from) {
   var m = /^"?([^"<]+?)"?\s*<.*>$/.exec(from);
   return (m ? m[1] : from).trim();
+}
+
+/**
+ * A setting: the script property if set, else CONFIG from a Config.gs file kept only in the Apps
+ * Script project (never in this repo), e.g.  var CONFIG = { TOKEN: '…', SUPABASE_URL: '…' };
+ */
+function prop(name) {
+  var v = PropertiesService.getScriptProperties().getProperty(name);
+  if (v) return v;
+  return typeof CONFIG !== 'undefined' && CONFIG[name] ? CONFIG[name] : null;
 }
 
 function safe(fn) {
