@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 #include <android/log.h>
+#include "audio_output.h"
 
 extern "C" {
 #include "raop.h"
@@ -419,4 +420,11 @@ Java_io_github_jqssun_airplay_bridge_NativeBridge_nativeServerAudioDebug(
     jlong cap = env->GetDirectBufferCapacity(buf);
     if (!addr || cap <= 0) return JNI_FALSE;
     return audio_engine_get_debug(ctx->cb_ctx.audio_engine, addr, (size_t)cap) ? JNI_TRUE : JNI_FALSE;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_io_github_jqssun_airplay_bridge_NativeBridge_nativeSetSoftGain(
+        JNIEnv *env, jobject thiz, jfloat gain) {
+    g_soft_gain.store(gain < 0.f ? 0.f : (gain > 1.f ? 1.f : gain), std::memory_order_relaxed);
 }

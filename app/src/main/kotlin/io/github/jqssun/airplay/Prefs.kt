@@ -7,7 +7,7 @@ object Prefs {
     const val NAME = "settings"
     const val AUTO = "auto"; const val ON = "on"; const val OFF = "off"
 
-    const val SERVER_NAME = "server_name"; const val DEF_SERVER_NAME = "Android AirPlay"
+    const val SERVER_NAME = "server_name"; const val DEF_SERVER_NAME = "Living Room TV"
     const val FALLBACK_MAC_ADDRESS = "fallback_mac_address"
     const val SERVER_PORT = "server_port"; const val DEF_SERVER_PORT = 7000
     const val AUTO_START = "auto_start"; const val DEF_AUTO_START = true
@@ -32,6 +32,8 @@ object Prefs {
     const val FORCE_SW_ALAC = "force_sw_alac"; const val DEF_FORCE_SW_ALAC = true
     const val AAC_ENABLED = "aac_enabled"; const val DEF_AAC_ENABLED = true
     const val RESOLUTION = "resolution"; const val DEF_RESOLUTION = AUTO
+    // "auto" advertises this instead of the panel size (null = panel size); decoder output is scaled to fit
+    val AUTO_DISPLAY_SIZE: Pair<Int, Int>? = 1920 to 1080
     const val MAX_FPS = "max_fps"; const val DEF_MAX_FPS = 60
     const val OVERSCANNED = "overscanned"; const val DEF_OVERSCANNED = false
     const val REQUIRE_PIN = "require_pin"; const val DEF_REQUIRE_PIN = false

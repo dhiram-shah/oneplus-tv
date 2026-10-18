@@ -52,6 +52,7 @@ import io.github.jqssun.airplay.viewmodel.DebugInfo
 import java.net.NetworkInterface
 import java.security.SecureRandom
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -169,6 +170,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
     private var _pendingVolEchoes = 0
     // senders park volume at -30 as route closes; session must not leave device silenced
     private var _preZeroIdx = -1
+    @Volatile private var _senderDb = 0f
     @Volatile private var _senderFrac = -1f
     private var _volSyncTarget = -1f
     private var _volSyncHint = 0
@@ -280,6 +282,9 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
 
         volumeReceiver = object : BroadcastReceiver() {
             override fun onReceive(ctx: Context, intent: Intent) {
+                // living-room fork: the TV's volume is held at 0 for an optical soundbar, so local
+                // volume changes say nothing about the sender's; volume is the sender's slider only
+                if (SOFT_VOLUME) return
                 if (intent.getIntExtra(VolumeBroadcast.EXTRA_STREAM_TYPE, -1) != AudioManager.STREAM_MUSIC) return
                 val idx = intent.getIntExtra(VolumeBroadcast.EXTRA_VALUE, -1)
                 val prev = intent.getIntExtra(VolumeBroadcast.EXTRA_PREV_VALUE, -1)
@@ -448,7 +453,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
             "landscape" -> false
             else -> resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
         }
-        val (rawW, rawH) = realDisplaySize()
+        val (rawW, rawH) = Prefs.AUTO_DISPLAY_SIZE ?: realDisplaySize()
         val device = if (portrait != rawH >= rawW) rawH to rawW else rawW to rawH
         if (res == "portrait" || res == "landscape") return device
         val (w, h) = if (res.contains("x")) {
@@ -616,6 +621,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         _videoTitle.value = ""
         _videoPlaybackActive.value = true
         airPlayVideoPlayer.play(location, startPositionSeconds)
+        _wakeAndFront()
         // claim media-button routing for keys that arrive as media-session events
         mediaSession?.isActive = true
         log("AirPlay Video play: $location @ ${startPositionSeconds}s")
@@ -658,6 +664,11 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         val frac = if (volume <= -144f) 0f else ((volume + 30f) / 30f).coerceIn(0f, 1f)
         _senderFrac = frac
         Log.d(TAG, "volume ${volume}dB, frac $frac")
+        if (SOFT_VOLUME) {
+            _senderDb = volume
+            NativeBridge.nativeSetSoftGain(if (volume <= -144f) 0f else 10f.pow(volume / 20f))
+            return
+        }
         _mainHandler.post {
             if (_volSyncTarget >= 0f) {
                 _volSyncStep()
@@ -675,6 +686,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
     }
 
     override fun onClientVolume(): Float {
+        if (SOFT_VOLUME) return _senderDb
         val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         val vol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         val db = if (vol == 0) -144f else -30f + 30f * vol / max
@@ -738,9 +750,11 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
             _durationMs.value = 0
             dacpController?.reset()
             _senderFrac = -1f
+            _senderDb = 0f
+            NativeBridge.nativeSetSoftGain(1f)
             _mainHandler.post {
                 _volSyncEnd()
-                if (_preZeroIdx >= 0) {
+                if (!SOFT_VOLUME && _preZeroIdx >= 0) {
                     audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, _preZeroIdx, 0)
                     _preZeroIdx = -1
                 }
@@ -748,6 +762,8 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
             mediaSession?.isActive = false
             _refreshDacpPlayer()
             _updateMediaNotification()
+            // the app came forward for this session; hand the screen back to the TV's home
+            if (shouldLaunchOnConnect()) _mainHandler.post { _goHome() }
         }
         log("Client disconnected (${_connectionCount.value})")
     }
@@ -807,7 +823,10 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
     }
 
     override fun onMirrorRunning(running: Boolean) {
-        if (running) videoRenderer.startSession() else {
+        if (running) {
+            videoRenderer.startSession()
+            _wakeAndFront()
+        } else {
             videoRenderer.stopSession()
             _mirroringActive.value = false
         }
@@ -1027,6 +1046,16 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         return prefs.getBoolean(Prefs.REQUIRE_PIN, Prefs.DEF_REQUIRE_PIN)
     }
 
+    private fun _goHome() {
+        if (_connectionCount.value > 0) return
+        try {
+            startActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        } catch (e: Exception) {
+            Log.w(TAG, "home launch failed", e)
+        }
+    }
+
     private fun shouldLaunchOnConnect(): Boolean {
         return prefs.getBoolean(Prefs.LAUNCH_ON_CONNECT, Prefs.DEF_LAUNCH_ON_CONNECT)
     }
@@ -1069,6 +1098,24 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         return builder.build()
     }
 
+    // turn the panel on (ends a running dream/screensaver) and bring the activity above it
+    private fun _wakeAndFront() {
+        if (!shouldLaunchOnConnect()) return
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        @Suppress("DEPRECATION")
+        pm.newWakeLock(
+            PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
+            "airplay:wake"
+        ).acquire(WAKE_MS)
+        // hidden api, needs DEVICE_POWER on most builds; best-effort user-activity poke
+        runCatching {
+            PowerManager::class.java
+                .getMethod("userActivity", Long::class.javaPrimitiveType, Boolean::class.javaPrimitiveType)
+                .invoke(pm, SystemClock.uptimeMillis(), false)
+        }
+        launchMainActivity()
+    }
+
     private fun launchMainActivity() {
         Handler(Looper.getMainLooper()).post {
             val launchIntent = Intent(this, MainActivity::class.java)
@@ -1105,11 +1152,14 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
 
     companion object {
         private const val TAG = "AirPlayService"
+        // sender volume scales the samples in the receiver; system volume is left to the TV/soundbar
+        private const val SOFT_VOLUME = true
         private const val VOL_SYNC_EPS = 0.033f
         private const val VOL_SYNC_MAX_STEPS = 32
         private const val VOL_SYNC_TIMEOUT_MS = 800L
         private const val CHANNEL_ID = "airplay_service"
         private const val NOTIFICATION_ID = 1
+        private const val WAKE_MS = 3000L
         const val ACTION_PLAY_PAUSE = "io.github.jqssun.airplay.PLAY_PAUSE"
         const val ACTION_NEXT = "io.github.jqssun.airplay.NEXT"
         const val ACTION_PREV = "io.github.jqssun.airplay.PREV"

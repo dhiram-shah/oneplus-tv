@@ -15,6 +15,7 @@ object NativeBridge {
     ): Long
 
     external fun nativeStart(handle: Long, port: Int): Int
+    external fun nativeSetSoftGain(gain: Float)
     external fun nativeStop(handle: Long)
     external fun nativeDestroy(handle: Long)
 

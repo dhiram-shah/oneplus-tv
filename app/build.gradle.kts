@@ -12,7 +12,7 @@ val localProps = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use(::load)
 }
 
-val allAbis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+val allAbis = listOf("armeabi-v7a") // OnePlus TV is 32-bit only
 
 android {
     namespace = "io.github.jqssun.airplay"

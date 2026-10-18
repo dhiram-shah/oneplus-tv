@@ -145,6 +145,8 @@ class DecoderSelector(private val ctx: Context) {
 
     private fun _first(mime: String) = _decoders(mime).firstOrNull()
 
+    fun supportsLowLatency(info: MediaCodecInfo, mime: String) = _lowLatency(info, mime)
+
     private fun _lowLatency(info: MediaCodecInfo, mime: String) = Build.VERSION.SDK_INT >= 30 &&
         runCatching { info.getCapabilitiesForType(mime).isFeatureSupported(CodecCapabilities.FEATURE_LowLatency) }
             .getOrDefault(false)

@@ -22,6 +22,7 @@ class VideoPipeline {
 
     private var egl: EglCore? = null
     private var window: EGLSurface = EGL14.EGL_NO_SURFACE
+    @Volatile private var bound = false
     private var winW = 0
     private var winH = 0
 
@@ -53,6 +54,15 @@ class VideoPipeline {
         pendingDisplay = surface
         displayDirty = true
         lock.notifyAll()
+    }
+
+    // lets a decoder render straight into the display surface: a surface takes one producer at a time
+    fun detachDisplaySync() = synchronized(lock) {
+        pendingDisplay = null
+        displayDirty = true
+        lock.notifyAll()
+        val until = System.currentTimeMillis() + 500
+        while (running && (displayDirty || bound) && System.currentTimeMillis() < until) lock.wait(50)
     }
 
     fun setVideoSize(w: Int, h: Int) {
@@ -102,7 +112,11 @@ class VideoPipeline {
                 }
             }
             if (!running) break
-            if (displayChanged) _bindDisplay(newDisplay)
+            if (displayChanged) {
+                _bindDisplay(newDisplay)
+                bound = window != EGL14.EGL_NO_SURFACE
+                synchronized(lock) { lock.notifyAll() }
+            }
             if (doFrame) _consumeAndDraw()
         }
         _releaseGl()

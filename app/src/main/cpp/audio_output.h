@@ -11,6 +11,10 @@
 
 class AudioOutput;
 
+// sender volume applied in software (living-room fork): the TV's own volume is held at 0 for an
+// optical soundbar, which ignores it, so the AirPlay slider scales the samples instead. 1 = unity.
+inline std::atomic<float> g_soft_gain{1.0f};
+
 // https://github.com/google/oboe/wiki/TechNote_HowToAvoidCrashes#avoid-deleting-objects-that-are-used-by-callbacks
 /*
  * oboe data/error callbacks. oboe can invoke these even after stop()/close():
@@ -25,9 +29,15 @@ public:
     OboeCallbacks(std::shared_ptr<TimelineBuffer> timeline, std::shared_ptr<LogSink> log)
         : mTimeline(std::move(timeline)), mLog(std::move(log)) {}
 
-    oboe::DataCallbackResult onAudioReady(oboe::AudioStream *, void *audioData,
+    oboe::DataCallbackResult onAudioReady(oboe::AudioStream *stream, void *audioData,
                                           int32_t numFrames) override {
-        mTimeline->read(static_cast<int16_t *>(audioData), numFrames);
+        auto *pcm = static_cast<int16_t *>(audioData);
+        mTimeline->read(pcm, numFrames);
+        const float g = g_soft_gain.load(std::memory_order_relaxed);
+        if (g < 0.999f) {
+            const int32_t n = numFrames * stream->getChannelCount();
+            for (int32_t i = 0; i < n; i++) pcm[i] = static_cast<int16_t>(pcm[i] * g);
+        }
         return oboe::DataCallbackResult::Continue;
     }
 
