@@ -1,0 +1,95 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 1280px; height: 720px; overflow: hidden; background: #000; color: #fff;
+         font-family: Inter, -apple-system, sans-serif; position: relative; }
+  .bg { position: absolute; inset: 0; }
+  .A .bg { background:
+      radial-gradient(900px 420px at 30% 38%, rgba(229,9,20,.38), transparent 70%),
+      radial-gradient(700px 380px at 85% 10%, rgba(229,9,20,.12), transparent 70%), #000; }
+  .B .bg { background:
+      linear-gradient(180deg, rgba(0,0,0,.0) 40%, rgba(0,0,0,.75) 100%),
+      linear-gradient(160deg, #1d3557 0%, #3a5a80 30%, #c97b63 62%, #f2b880 75%, #2b2d42 100%); }
+  .B .bg::after { content:""; position:absolute; left:0; right:0; bottom:180px; height:160px;
+      background: linear-gradient(180deg, transparent, rgba(20,22,40,.9));
+      clip-path: polygon(0 60%, 12% 30%, 22% 52%, 35% 18%, 48% 48%, 60% 25%, 74% 55%, 86% 22%, 100% 46%, 100% 100%, 0 100%); }
+
+  .top { position: absolute; top: 34px; left: 64px; right: 64px; display: flex; align-items: center; }
+  .pills { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .pill { height: 34px; padding: 0 16px; border-radius: 17px; background: rgba(255,255,255,.12);
+          display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: rgba(255,255,255,.85);
+          border: 1px solid rgba(255,255,255,.08); }
+  .pill.focus { background: rgba(255,255,255,.92); color: #000; }
+  .clock { font-size: 20px; font-weight: 500; color: rgba(255,255,255,.9); margin-left: 18px; }
+
+  .shelf { position: absolute; left: 64px; top: 200px; }
+  .shelf .eyebrow { font-size: 14px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+  .shelf h1 { font-size: 76px; font-weight: 600; letter-spacing: -.02em; margin-top: 8px; }
+  .shelf p { font-size: 18px; color: rgba(255,255,255,.6); margin-top: 6px; font-weight: 400; }
+
+  .row { position: absolute; left: 64px; right: 64px; display: flex; gap: 28px; }
+  .dock { top: 440px; }
+  .B .dock { top: 470px; }
+  .grid { top: 610px; opacity: .45; }
+  .B .grid { display: none; }
+  .tile { width: 196px; height: 118px; border-radius: 14px; flex: none; display: flex; align-items: center; justify-content: center;
+          font-weight: 700; font-size: 26px; letter-spacing: -.01em; position: relative; box-shadow: 0 10px 24px rgba(0,0,0,.5); }
+  .tile.focus { transform: scale(1.12); box-shadow: 0 26px 50px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.35) inset; z-index: 2; }
+  .tile.focus::before { content:""; position:absolute; inset:0; border-radius:14px;
+          background: linear-gradient(135deg, rgba(255,255,255,.35), rgba(255,255,255,0) 45%); }
+  .label { position: absolute; top: 132px; left: 0; right: 0; text-align: center; font-size: 16px; font-weight: 500; color: #fff; }
+  .nf { background: #000; color: #e50914; font-size: 32px; font-weight: 800; letter-spacing: .02em; }
+  .pv { background: #00a8e1; color: #fff; font-size: 24px; font-weight: 600; }
+  .yt { background: #fff; color: #111; } .yt b { background: #f00; color: #fff; border-radius: 6px; padding: 2px 9px; margin-right: 7px; font-size: 14px; }
+  .jh { background: linear-gradient(120deg, #1240ff, #9b1ccf 60%, #ff2d87); color: #fff; font-size: 24px; }
+  .at { background: #111; color: #fff; font-size: 28px; font-weight: 500; }
+  .sl { background: linear-gradient(135deg, #2b0a3d, #000); color: #fff; font-size: 22px; }
+  .z5 { background: linear-gradient(135deg, #3a3a3a, #0d0d0d); color: #fff; font-size: 40px; font-weight: 300; }
+  .tag { position: absolute; left: 64px; font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); }
+</style></head>
+<body>
+<div class="bg"></div>
+<div class="top">
+  <div style="font-size:15px;color:rgba(255,255,255,.55);font-weight:500"></div>
+  <div class="pills">
+    <div class="pill">⎆ Fire TV</div>
+    <div class="pill">Inputs</div>
+    <div class="pill">⚙︎</div>
+    <div class="clock">8:42</div>
+  </div>
+</div>
+
+<div class="shelf">
+  <div class="eyebrow">Recently opened</div>
+  <h1>Netflix</h1>
+  <p>Opened 2 hours ago</p>
+</div>
+
+<div class="tag" style="top:410px" id="tagdock">Your apps</div>
+<div class="row dock">
+  <div class="tile nf focus">NETFLIX<div class="label">Netflix</div></div>
+  <div class="tile yt"><b>▶</b>YouTube</div>
+  <div class="tile jh">✶ JioHotstar</div>
+  <div class="tile pv">prime video</div>
+  <div class="tile at"> tv</div>
+</div>
+<div class="row grid">
+  <div class="tile sl">SonyLIV</div>
+  <div class="tile z5">Z5</div>
+  <div class="tile" style="background:#1f1f22;font-size:18px;font-weight:500;color:#aaa">Play Store</div>
+  <div class="tile" style="background:#1f1f22;font-size:18px;font-weight:500;color:#aaa">Settings</div>
+  <div class="tile" style="background:#1f1f22;font-size:18px;font-weight:500;color:#aaa">Live TV</div>
+</div>
+<script>
+  const v = new URLSearchParams(location.search).get('v') || 'A';
+  document.body.className = v;
+  if (v === 'B') {
+    document.querySelector('.shelf').style.top = '300px';
+    document.querySelector('.shelf h1').style.fontSize = '56px';
+    document.getElementById('tagdock').style.display = 'none';
+    document.querySelector('.clock').style.fontSize = '20px';
+  }
+</script>
+</body></html>

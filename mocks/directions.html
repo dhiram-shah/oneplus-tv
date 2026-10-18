@@ -1,0 +1,138 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=Newsreader:opsz,wght@6..72,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@300..500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1280px;height:720px;overflow:hidden;position:relative;-webkit-font-smoothing:antialiased}
+.photo{position:absolute;inset:0;background-size:cover;background-position:center}
+.abs{position:absolute}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- A: tvOS, quiet ---------- */
+.A{background:oklch(0.14 0.005 260);color:oklch(0.97 0.004 260);font-family:Inter,sans-serif}
+.A .shelf{position:absolute;inset:0 0 auto 0;height:520px;background:url(art/landscape2.jpg) center 40%/cover}
+.A .shelf::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,oklch(0.14 0.005 260/0) 35%,oklch(0.14 0.005 260/.92) 88%,oklch(0.14 0.005 260) 100%),linear-gradient(90deg,oklch(0.14 0.005 260/.7),transparent 55%)}
+.A .time{top:34px;right:64px;font-size:22px;font-weight:400;opacity:.92}
+.A .me{top:32px;left:64px;width:30px;height:30px;border-radius:50%;background:oklch(0.62 0.17 250);display:grid;place-items:center;font-size:13px;font-weight:600}
+.A .meta{left:64px;top:250px;width:520px}
+.A .kicker{font-size:14px;font-weight:500;opacity:.75}
+.A h1{font-size:58px;font-weight:650;letter-spacing:-.025em;line-height:1;margin-top:10px}
+.A .sub{font-size:16px;opacity:.72;margin-top:12px;font-weight:400}
+.A .bar{width:180px;height:4px;border-radius:2px;background:oklch(1 0 0/.25);margin-top:18px}.A .bar b{display:block;width:62%;height:100%;border-radius:2px;background:oklch(0.97 0.004 260)}
+.A .row{left:64px;top:470px;display:flex;gap:26px}
+.A .t{width:204px;height:122px;border-radius:14px;display:grid;place-items:center;font-weight:700;font-size:24px;box-shadow:0 12px 30px oklch(0 0 0/.45)}
+.A .t.f{transform:scale(1.1);box-shadow:0 28px 50px oklch(0 0 0/.6)}
+.A .day{left:64px;top:640px;font-size:15px;opacity:.6;font-weight:450;letter-spacing:.005em}
+.A .saver .cap{left:64px;bottom:56px}
+.A .saver .big{font-size:84px;font-weight:300;letter-spacing:-.03em;line-height:1}
+.A .saver .line{font-size:17px;opacity:.85;margin-top:10px;font-weight:450}
+.A .saver .place{right:64px;bottom:60px;font-size:13px;opacity:.6;text-align:right}
+
+/* ---------- B: Daybook (editorial) ---------- */
+.B{background:oklch(0.16 0.008 70);color:oklch(0.95 0.012 80);font-family:Inter,sans-serif}
+.B .serif{font-family:Newsreader,serif}
+.B .saver .photo{background-image:url(art/landscape.jpg)}
+.B .saver .photo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,oklch(0.16 0.008 70/.94) 0%,oklch(0.16 0.008 70/.82) 38%,oklch(0.16 0.008 70/.15) 70%,transparent)}
+.B .col{left:80px;top:64px;width:500px}
+.B .clock{font-size:118px;font-weight:300;letter-spacing:-.02em;line-height:.9}
+.B .date{font-size:21px;margin-top:14px;opacity:.8;font-style:italic}
+.B .wx{font-size:16px;margin-top:8px;opacity:.7}
+.B .list{margin-top:34px}
+.B .item{display:grid;grid-template-columns:92px 1fr;padding:11px 0;border-top:1px solid oklch(0.95 0.012 80/.14);font-size:17px}
+.B .item:last-child{border-bottom:1px solid oklch(0.95 0.012 80/.14)}
+.B .item .w{opacity:.55;font-size:15px}
+.B .item .n{font-weight:500}
+.B .item .c{display:block;font-size:12.5px;opacity:.5;margin-top:2px;font-weight:400}
+.B .sentence{margin-top:22px;font-size:18px;line-height:1.45;opacity:.85}
+.B .zones{left:80px;bottom:44px;font-size:12.5px;letter-spacing:.06em;opacity:.55;text-transform:uppercase}
+.B .zones b{font-weight:500;opacity:1}
+.B .credit{right:56px;bottom:44px;font-size:12px;opacity:.5;font-style:italic}
+.B .home .shelf{position:absolute;right:0;top:0;width:820px;height:470px;background:url(art/landscape2.jpg) center/cover}
+.B .home .shelf::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,oklch(0.16 0.008 70) 0%,oklch(0.16 0.008 70/.4) 40%,transparent),linear-gradient(0deg,oklch(0.16 0.008 70),transparent 40%)}
+.B .home .meta{left:80px;top:120px;width:470px}
+.B .home .k{font-size:13px;letter-spacing:.1em;text-transform:uppercase;opacity:.6}
+.B .home h1{font-family:Newsreader,serif;font-weight:400;font-size:64px;line-height:1;margin-top:12px;letter-spacing:-.01em}
+.B .home .sub{font-size:16px;opacity:.7;margin-top:14px;line-height:1.5}
+.B .home .row{left:80px;top:478px;display:flex;gap:22px}
+.B .home .t{width:196px;height:110px;border-radius:6px;display:grid;place-items:center;font-weight:700;font-size:22px}
+.B .home .t.f{outline:2px solid oklch(0.95 0.012 80);outline-offset:5px}
+.B .home .top{left:80px;right:80px;top:40px;display:flex;justify-content:space-between;font-size:15px;opacity:.75}
+.B .home .strip{left:80px;right:80px;top:640px;display:flex;gap:40px;font-size:14px;opacity:.65;border-top:1px solid oklch(0.95 0.012 80/.14);padding-top:16px}
+
+/* ---------- C: Instrument (studio) ---------- */
+.C{background:oklch(0.19 0.006 60);color:oklch(0.93 0.008 80);font-family:Geist,sans-serif}
+.C .mono{font-family:'Geist Mono',monospace}
+.C .acc{color:oklch(0.72 0.17 45)}
+.C .plate{right:48px;top:48px;width:520px;height:624px;background:url(art/landscape.jpg) center/cover;border-radius:4px}
+.C .grid{left:56px;top:48px;width:600px}
+.C .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.5;font-weight:500}
+.C .clock{font-size:104px;font-weight:300;letter-spacing:-.04em;line-height:1;margin-top:6px}
+.C .rule{height:1px;background:oklch(0.93 0.008 80/.16);margin:22px 0}
+.C .cells{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+.C .cells>div{padding-right:16px}
+.C .v{font-size:30px;font-weight:300;margin-top:6px}
+.C .s{font-size:12px;opacity:.55;margin-top:4px}
+.C table{width:100%;border-collapse:collapse;font-size:15px}
+.C td{padding:9px 0;border-bottom:1px solid oklch(0.93 0.008 80/.1)}
+.C td.tm{width:96px;opacity:.6}
+.C td.cal{text-align:right;opacity:.45;font-size:12px}
+.C .zones{display:grid;grid-template-columns:repeat(5,1fr);font-size:13px}
+.C .zones span{display:block;font-size:20px;font-weight:300;margin-top:3px}
+.C .home .top{left:56px;right:56px;top:36px;display:flex;justify-content:space-between;align-items:baseline}
+.C .home .shelf{left:56px;right:56px;top:84px;height:330px;background:url(art/landscape2.jpg) center 45%/cover;border-radius:4px}
+.C .home .meta{left:84px;top:250px}
+.C .home h1{font-size:46px;font-weight:500;letter-spacing:-.02em;color:#fff;text-shadow:0 2px 30px #0008}
+.C .home .row{left:56px;top:448px;display:flex;gap:16px}
+.C .home .t{width:184px;height:104px;border-radius:4px;display:grid;place-items:center;font-weight:700;font-size:21px}
+.C .home .t.f{outline:2px solid oklch(0.72 0.17 45);outline-offset:4px}
+.C .home .strip{left:56px;right:56px;top:600px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid oklch(0.93 0.008 80/.16);padding-top:14px}
+
+/* app colours (stand-ins for real banners) */
+.nf{background:#000;color:#e50914;font-size:28px!important;letter-spacing:.02em}.yt{background:#fff;color:#111}.jh{background:linear-gradient(120deg,#1240ff,#9b1ccf 60%,#ff2d87);color:#fff}.pv{background:#00a8e1;color:#fff}.at{background:#151515;color:#fff;font-weight:500!important}.ft{background:#ff9900;color:#232f3e}
+</style></head><body>
+<div id="root"></div>
+<script>
+const q=new URLSearchParams(location.search), d=q.get('d')||'A', s=q.get('s')||'home';
+document.body.className=d;
+const tiles=f=>`<div class="t nf ${f?'f':''}">NETFLIX</div><div class="t yt">▶ YouTube</div><div class="t jh">JioHotstar</div><div class="t pv">prime video</div><div class="t at"> tv</div>`;
+const V={
+A:{home:`<div class="shelf"></div><div class="abs me">D</div><div class="abs time tnum">2:24</div>
+<div class="abs meta"><div class="kicker">Continue on Netflix</div><h1>The Diplomat</h1><div class="sub">Season 3, Episode 4 · 31 min left</div><div class="bar"><b></b></div></div>
+<div class="abs row">${tiles(1)}</div>
+<div class="abs day tnum">Makhana Sync at 7:30 &nbsp;·&nbsp; 26° and cloudy &nbsp;·&nbsp; 46 unread</div>`,
+saver:`<div class="saver"><div class="photo" style="background-image:url(art/landscape.jpg)"></div>
+<div class="photo" style="background:linear-gradient(0deg,oklch(0 0 0/.55),transparent 45%)"></div>
+<div class="abs cap"><div class="big tnum">2:24</div><div class="line">Makhana Sync at 7:30 &nbsp;·&nbsp; 26° Bengaluru &nbsp;·&nbsp; 3 important emails</div></div>
+<div class="abs place">Dolomites, Italy</div></div>`},
+B:{saver:`<div class="saver"><div class="photo"></div>
+<div class="abs col"><div class="clock serif tnum">2:24</div><div class="date serif">Sunday, the eighteenth of October</div><div class="wx">26° and cloudy in Bengaluru, clearing by evening. Air is moderate.</div>
+<div class="list">
+<div class="item"><span class="w tnum">All day</span><span class="n">Maha Saptami<span class="c">Holidays in India</span></span></div>
+<div class="item"><span class="w tnum">7:30 pm</span><span class="n">Makhana Sync<span class="c">Work · in 5 hours</span></span></div>
+<div class="item"><span class="w">Tomorrow</span><span class="n">Maha Ashtami<span class="c">Holidays in India</span></span></div></div>
+<div class="sentence serif">Twelve unread at home, thirty-four at Flent; three of them matter. Two to-dos due today.</div></div>
+<div class="abs zones tnum"><b>Dubai</b> 12:54 &nbsp;&nbsp; <b>Dublin</b> 9:54 &nbsp;&nbsp; <b>Houston</b> 3:54 &nbsp;&nbsp; <b>Los Angeles</b> 1:54 &nbsp;&nbsp; <b>Sydney</b> 7:54</div>
+<div class="abs credit serif">Dolomites, Italy</div></div>`,
+home:`<div class="home"><div class="shelf"></div>
+<div class="abs top"><span>Good afternoon, Dhiram</span><span class="tnum">2:24</span></div>
+<div class="abs meta"><div class="k">Continue on Netflix</div><h1>The Diplomat</h1><div class="sub">Season 3, Episode 4. Thirty-one minutes left.</div></div>
+<div class="abs row">${tiles(1)}</div>
+<div class="abs strip tnum"><span>Makhana Sync, 7:30 pm</span><span>26°, cloudy</span><span>46 unread · 3 important</span><span>Fire TV on HDMI 1</span></div></div>`},
+C:{saver:`<div class="saver"><div class="abs plate"></div>
+<div class="abs grid">
+<div class="lbl">Sunday 18 Oct · Bengaluru</div><div class="clock mono tnum">14:24</div>
+<div class="rule"></div>
+<div class="cells"><div><div class="lbl">Weather</div><div class="v mono">26°</div><div class="s">Cloudy · AQI 57</div></div><div><div class="lbl">Inbox</div><div class="v mono">46</div><div class="s"><span class="acc">3 important</span></div></div><div><div class="lbl">To-do</div><div class="v mono">5</div><div class="s">2 due today</div></div></div>
+<div class="rule"></div>
+<div class="lbl" style="margin-bottom:6px">Today</div>
+<table class="mono"><tr><td class="tm">all day</td><td>Maha Saptami</td><td class="cal">holidays</td></tr><tr><td class="tm acc">19:30</td><td>Makhana Sync</td><td class="cal">work</td></tr><tr><td class="tm">tmrw</td><td>Maha Ashtami</td><td class="cal">holidays</td></tr></table>
+<div class="rule"></div>
+<div class="zones mono"><div class="lbl">Dubai<span>12:54</span></div><div class="lbl">Dublin<span>09:54</span></div><div class="lbl">Houston<span>03:54</span></div><div class="lbl">L.A.<span>01:54</span></div><div class="lbl">Sydney<span>19:54</span></div></div>
+</div></div>`,
+home:`<div class="home"><div class="abs top"><span class="lbl">Dhiram</span><span class="mono" style="font-size:20px">14:24</span></div>
+<div class="abs shelf"></div><div class="abs meta"><div class="lbl" style="opacity:.85;color:#fff">Continue on Netflix</div><h1>The Diplomat</h1></div>
+<div class="abs row">${tiles(1)}<div class="t ft">fire tv</div></div>
+<div class="abs strip mono"><div class="lbl">Next<div class="v" style="font-size:18px;margin-top:6px;letter-spacing:0;text-transform:none;opacity:1">19:30 Makhana Sync</div></div><div class="lbl">Weather<div class="v" style="font-size:18px;margin-top:6px;opacity:1">26° cloudy</div></div><div class="lbl">Inbox<div class="v acc" style="font-size:18px;margin-top:6px;opacity:1">46 · 3 important</div></div><div class="lbl">To-do<div class="v" style="font-size:18px;margin-top:6px;opacity:1">5 · 2 due</div></div></div></div>`}
+};
+document.getElementById('root').innerHTML=V[d][s];
+</script></body></html>
