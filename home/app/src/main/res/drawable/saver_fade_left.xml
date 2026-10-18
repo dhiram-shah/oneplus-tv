@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Blends the photo's left edge into the background, like a print bleeding into the dark. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient android:angle="0" android:startColor="#FF1A1816" android:centerColor="#B31A1816" android:centerX="0.35" android:endColor="#001A1816" />
+</shape>

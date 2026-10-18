@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Home screen configuration. Edit, then run home/build-and-install.sh.
+  Package names: tools/tv.py 'pm list packages'. Input ids: tools/tv.py 'dumpsys tv_input'.
+-->
+<resources>
+
+    <!-- Apps never shown as tiles. -->
+    <string-array name="hidden_apps">
+        <item>com.mediatek.wwtv.tvcenter</item>
+        <item>com.android.tv.settings</item>
+        <item>com.google.android.tvlauncher</item>
+        <item>io.github.jqssun.airplay</item>   <!-- has its own AirPlay tile -->
+    </string-array>
+
+    <!-- Profiles created on first run: name|accent colour|calendars ("all", "none", or display names
+         joined by commas). After that they're managed on the TV (up to 4, Guest always last). -->
+    <string-array name="profiles">
+        <item>Dhiram|#0A84FF|all</item>
+        <item>Guest|#8E8E93|none</item>
+    </string-array>
+
+    <!-- Profile pictures, by profile name (the two lists line up). Profiles without one show their
+         initial on their colour. -->
+    <string-array name="profile_photo_names">
+        <item>Dhiram</item>
+    </string-array>
+    <array name="profile_photos">
+        <item>@drawable/avatar_brick</item>
+    </array>
+
+    <!-- Used to order the apps row before there is any usage history. -->
+    <string-array name="default_apps">
+        <item>com.netflix.ninja</item>
+        <item>com.google.android.youtube.tv</item>
+        <item>in.startv.hotstar</item>
+        <item>com.amazon.amazonvideo.livingroom</item>
+        <item>com.apple.atve.androidtv.appletv</item>
+        <item>com.sonyliv</item>
+        <item>com.graymatrix.did</item>
+    </string-array>
+
+    <!-- The TV's Live TV / tuner app, offered at the end of the Inputs menu. Leave empty to omit. -->
+    <string name="live_tv_package" translatable="false">com.mediatek.wwtv.tvcenter</string>
+
+    <!-- Weather (Open-Meteo, no key). The city is looked up from the internet connection (ipwho.is)
+         once a day; these are the fallback when that fails. -->
+    <string name="weather_city" translatable="false">Bengaluru</string>
+    <string name="weather_lat" translatable="false">12.9716</string>
+    <string name="weather_lon" translatable="false">77.5946</string>
+
+    <!-- World clock: label|IANA zone -->
+    <string-array name="world_clocks">
+        <item>Mumbai|Asia/Kolkata</item>
+        <item>Dubai|Asia/Dubai</item>
+        <item>Dublin|Europe/Dublin</item>
+        <item>Houston|America/Chicago</item>
+        <item>Los Angeles|America/Los_Angeles</item>
+        <item>Sydney|Australia/Sydney</item>
+    </string-array>
+
+    <!-- TMDB discovery: label|TMDB watch-provider name (matched case-insensitively)|Android package -->
+    <string-array name="services">
+        <item>Netflix|Netflix|com.netflix.ninja</item>
+        <item>Prime Video|Amazon Prime Video|com.amazon.amazonvideo.livingroom</item>
+        <item>JioHotstar|JioHotstar|in.startv.hotstar</item>
+        <item>Apple TV+|Apple TV|com.apple.atve.androidtv.appletv</item>
+        <item>SonyLIV|Sony Liv|com.sonyliv</item>
+        <item>ZEE5|Zee5|com.graymatrix.did</item>
+    </string-array>
+
+    <!-- Screensaver photos the TV fetches once a day (no keys). Remove a line to drop a source:
+         bing = Bing photo of the day (India), earthview = Google Earth View aerials,
+         artic = public-domain landscapes from the Art Institute of Chicago. -->
+    <string-array name="photo_sources">
+        <item>bing</item>
+        <item>earthview</item>
+        <item>artic</item>
+    </string-array>
+
+    <!-- Photos pushed to this folder on the TV (tools/push-photo.sh). With ambient_pin_local true,
+         they replace the fetched photos while the folder has any; empty the folder to go back. -->
+    <string name="ambient_photos_dir" translatable="false">/sdcard/Pictures/Ambient</string>
+    <bool name="ambient_pin_local">true</bool>
+
+    <!-- AirPlay receiver app (jqssun/android-airplay-server), shown as a tile when installed. -->
+    <string name="airplay_package" translatable="false">io.github.jqssun.airplay</string>
+
+    <!-- Soundbar on optical: keep the TV speakers at 0 and ignore volume keys (data/SoundbarGuard).
+         The soundbar's own remote sets the volume. False hands volume back to the TV speakers. -->
+    <bool name="soundbar_optical">true</bool>
+</resources>

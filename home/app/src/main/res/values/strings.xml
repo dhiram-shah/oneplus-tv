@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Home</string>
+    <string name="ambient_name">Ambient</string>
+    <string name="soundbar_guard_name">Soundbar</string>
+    <string name="soundbar_guard_desc">Keeps the TV speakers silent while the optical soundbar plays.</string>
+    <string name="inputs">Inputs</string>
+    <string name="settings">Settings</string>
+    <string name="connected">Connected</string>
+    <string name="not_connected">Nothing plugged in</string>
+    <string name="standby">Standby</string>
+    <string name="live_tv">Live TV</string>
+    <string name="no_inputs">No inputs found</string>
+    <string name="good_morning">Good morning</string>
+    <string name="good_afternoon">Good afternoon</string>
+    <string name="good_evening">Good evening</string>
+    <string name="good_night">Good night</string>
+    <string name="row_continue">Continue watching</string>
+    <string name="row_all_apps">All apps</string>
+    <string name="whos_watching">Who\'s watching?</string>
+</resources>

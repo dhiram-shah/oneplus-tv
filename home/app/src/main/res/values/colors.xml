@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home (direction A): cool near-black, never pure black. -->
+    <color name="bg">#FF0E0F12</color>
+    <color name="fg">#FFF5F6F8</color>
+    <color name="tile">#FF1B1C20</color>
+
+    <!-- Screensaver (direction C): warm near-black, one accent; the photo bleeds in from the right. -->
+    <color name="saver_bg">#FF1A1816</color>
+    <color name="saver_fg">#FFEDE9E3</color>
+    <color name="saver_muted">#8CEDE9E3</color>
+    <color name="saver_faint">#73EDE9E3</color>
+    <color name="saver_rule">#29EDE9E3</color>
+    <color name="saver_accent">#FFE8803F</color>
+</resources>

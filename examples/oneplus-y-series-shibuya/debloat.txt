@@ -1,0 +1,16 @@
+# OnePlus TV Y Series (Skyworth "shibuya"), Android TV 11. Disabled for user 0, never uninstalled.
+# Ads, recommendations and OEM content
+com.google.android.tvrecommendations   # sponsored / recommendation rows
+com.oneplus.tv.launcher.appstore       # OxygenPlay
+com.oneplus.tv.sharealbum              # Shared Album
+com.smartdevice.common.demonow         # store demo
+fusion.android.tv.demo                 # store demo
+com.Smartdevice.emanual                # e-manual
+com.google.android.feedback
+com.google.android.music               # discontinued
+# Streaming apps not used
+com.discoveryplus.tv.android
+tv.airtel.xstream.tvapp
+com.jio.media.stb.ondemand
+# Google Assistant (not used)
+com.google.android.katniss

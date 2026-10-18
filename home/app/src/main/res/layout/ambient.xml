@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Direction C (mocks/dir-C-saver.png) × 0.75: a ruled column of numbers on the left; the day's photo
+     bleeds in full-height from the right and dissolves into the background. Sections are filled in
+     AmbientDream. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/saver_bg">
+
+    <!-- Photo: right 62 %, full height, no frame. Fades on the left, top and bottom. -->
+    <FrameLayout
+        android:layout_width="600dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end">
+
+        <ImageView
+            android:id="@+id/photoA"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:alpha="0"
+            android:contentDescription="@null" />
+
+        <ImageView
+            android:id="@+id/photoB"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:alpha="0"
+            android:contentDescription="@null" />
+
+        <!-- A touch of the background over the photo so it sits in the dark instead of on it. -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#291A1816" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/saver_fade_vertical" />
+
+        <View
+            android:layout_width="320dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/saver_fade_left" />
+    </FrameLayout>
+
+    <!-- Everything below drifts a few dp every few minutes to avoid burn-in. -->
+    <FrameLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="428dp"
+            android:layout_height="472dp"
+            android:layout_marginStart="42dp"
+            android:layout_marginTop="34dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/aLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter"
+                android:fontVariationSettings="'wght' 500"
+                android:letterSpacing="0.14"
+                android:textAllCaps="true"
+                android:textColor="@color/saver_muted"
+                android:textSize="8.5sp" />
+
+            <TextClock
+                android:id="@+id/aClock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginStart="-3dp"
+                android:fontFamily="@font/geist_mono"
+                android:fontVariationSettings="'wght' 300"
+                android:format12Hour="HH:mm"
+                android:format24Hour="HH:mm"
+                android:includeFontPadding="false"
+                android:letterSpacing="-0.04"
+                android:textColor="@color/saver_fg"
+                android:textSize="70sp" />
+
+            <!-- Ruled sections: numbers, Flent, today. Built in code. -->
+            <LinearLayout
+                android:id="@+id/aSections"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/saver_rule" />
+
+            <LinearLayout
+                android:id="@+id/aClocks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/aCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_marginEnd="40dp"
+            android:layout_marginBottom="34dp"
+            android:maxWidth="360dp"
+            android:fontFamily="@font/inter"
+            android:fontVariationSettings="'wght' 420"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="@color/saver_faint"
+            android:textSize="9sp" />
+    </FrameLayout>
+</FrameLayout>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The day strip: a faint full-width bar, brighter when focused. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape><solid android:color="#29F5F6F8" /><corners android:radius="10dp" /></shape>
+    </item>
+    <item><shape><solid android:color="#0FF5F6F8" /><corners android:radius="10dp" /></shape></item>
+</selector>

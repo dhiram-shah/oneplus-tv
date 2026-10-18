@@ -1,0 +1,167 @@
+/**
+ * TV feed: publishes this Google account's unread mail, today's + tomorrow's events and open tasks
+ * as JSON for the living-room TV. Runs inside your own account; the TV only sees this JSON.
+ *
+ * Setup (once per account, ~2 min):
+ *   1. script.google.com → New project → paste this file.
+ *   2. Services (+) → add "Google Tasks API".
+ *   3. Project Settings → Script properties → TOKEN = a long random string.
+ *   4. Deploy → New deployment → Web app → Execute as: Me, Who has access: Anyone → Deploy.
+ *   5. Give the Web app URL + "?k=<TOKEN>" to the TV (home/local.properties, feed.<profile>=…).
+ *
+ * Flent account only: also set script properties SUPABASE_URL (https://<project>.supabase.co),
+ * SUPABASE_SERVICE_KEY (the secret key; RLS hides rows from the anon key) and the three PostgREST
+ * queries, kept out of this file:
+ *   OCCUPANCY_PATH  one row whose `data.counts` has `rooms` and `occupied`
+ *   WINS_PATH       one row per win, ending in `<date column>=gte.` (the start date is appended)
+ *   VISITORS_PATH   daily rows with a `visitors` column, ending in `<date column>=gte.`
+ * The feed then adds "flent": occupancy, wins this month/week and website visitors. The key stays
+ * in this script; the TV only ever receives the five numbers.
+ */
+
+var CACHE_SECONDS = 240;
+var TOP_MAIL = 5;
+
+function doGet(e) {
+  var token = PropertiesService.getScriptProperties().getProperty('TOKEN');
+  if (!token || !e || !e.parameter || e.parameter.k !== token) {
+    return json({ error: 'unauthorized' });
+  }
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get('feed');
+  if (hit) return ContentService.createTextOutput(hit).setMimeType(ContentService.MimeType.JSON);
+
+  var out = {
+    account: Session.getEffectiveUser().getEmail(),
+    generated: new Date().toISOString(),
+    mail: safe(mail),
+    events: safe(events),
+    tasks: safe(tasks)
+  };
+  if (PropertiesService.getScriptProperties().getProperty('SUPABASE_SERVICE_KEY')) out.flent = safe(flent);
+  var body = JSON.stringify(out);
+  cache.put('feed', body, CACHE_SECONDS);
+  return ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
+}
+
+function mail() {
+  var important = GmailApp.search('in:inbox is:unread is:important', 0, TOP_MAIL);
+  var top = important.map(function (t) {
+    var m = t.getMessages()[t.getMessageCount() - 1];
+    return {
+      from: senderName(m.getFrom()),
+      subject: t.getFirstMessageSubject() || '(no subject)',
+      at: t.getLastMessageDate().toISOString()
+    };
+  });
+  return {
+    unread: GmailApp.getInboxUnreadCount(),
+    important: GmailApp.search('in:inbox is:unread is:important', 0, 100).length,
+    top: top
+  };
+}
+
+function events() {
+  var start = new Date();
+  start.setHours(0, 0, 0, 0);
+  var end = new Date(start.getTime() + 2 * 24 * 3600 * 1000);
+  var out = [];
+  CalendarApp.getAllCalendars().forEach(function (cal) {
+    if (cal.isHidden() || !cal.isSelected()) return;
+    cal.getEvents(start, end).forEach(function (ev) {
+      var status = ev.getMyStatus();
+      if (status === CalendarApp.GuestStatus.NO) return;
+      out.push({
+        title: ev.getTitle() || 'Busy',
+        start: ev.getStartTime().toISOString(),
+        end: ev.getEndTime().toISOString(),
+        allDay: ev.isAllDayEvent(),
+        calendar: cal.getName(),
+        color: cal.getColor()
+      });
+    });
+  });
+  out.sort(function (a, b) { return a.start < b.start ? -1 : 1; });
+  return out;
+}
+
+function tasks() {
+  if (typeof Tasks === 'undefined') return [];   // Tasks API service not added
+  var out = [];
+  var lists = Tasks.Tasklists.list({ maxResults: 20 }).items || [];
+  lists.forEach(function (l) {
+    var items = Tasks.Tasks.list(l.id, { showCompleted: false, showHidden: false, maxResults: 50 }).items || [];
+    items.forEach(function (t) {
+      if (!t.title) return;
+      out.push({ title: t.title, due: t.due || null, list: l.title });
+    });
+  });
+  out.sort(function (a, b) {
+    if (!a.due) return 1;
+    if (!b.due) return -1;
+    return a.due < b.due ? -1 : 1;
+  });
+  return out.slice(0, 20);
+}
+
+/** Flent numbers via Supabase REST. Days are IST days, matching the Flent dashboards. */
+function flent() {
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get('flent');
+  if (hit) return JSON.parse(hit);
+
+  var p = PropertiesService.getScriptProperties();
+  var snap = supabase(p.getProperty('OCCUPANCY_PATH'))[0];
+  var counts = (snap && snap.data && snap.data.counts) || {};
+  var rooms = counts.rooms;
+  var occupied = counts.occupied;
+
+  var today = istDate(0);
+  var monthStart = today.substring(0, 8) + '01';
+  var weekStart = istDate(-6);
+  var out = {
+    occupied: occupied,
+    rooms: rooms,
+    winsMonth: count(p.getProperty('WINS_PATH') + monthStart),
+    winsWeek: count(p.getProperty('WINS_PATH') + weekStart),
+    visitors7d: supabase(p.getProperty('VISITORS_PATH') + weekStart)
+        .reduce(function (s, r) { return s + (r.visitors || 0); }, 0)
+  };
+  cache.put('flent', JSON.stringify(out), 900);
+  return out;
+}
+
+function supabase(path, headers) {
+  var p = PropertiesService.getScriptProperties();
+  var key = p.getProperty('SUPABASE_SERVICE_KEY');
+  var res = UrlFetchApp.fetch(p.getProperty('SUPABASE_URL') + '/rest/v1/' + path, {
+    headers: Object.assign({ apikey: key, Authorization: 'Bearer ' + key }, headers || {}),
+    muteHttpExceptions: true
+  });
+  if (res.getResponseCode() >= 300) throw new Error('supabase ' + res.getResponseCode() + ' on ' + path.split('?')[0]);
+  return headers ? res : JSON.parse(res.getContentText());
+}
+
+/** Exact row count without fetching rows (Content-Range: 0-0/N). */
+function count(path) {
+  var res = supabase(path + '&limit=1', { Prefer: 'count=exact' });
+  var range = res.getHeaders()['Content-Range'] || res.getHeaders()['content-range'] || '';
+  return Number(range.split('/')[1] || 0);
+}
+
+function istDate(offsetDays) {
+  return Utilities.formatDate(new Date(Date.now() + offsetDays * 86400000), 'Asia/Kolkata', 'yyyy-MM-dd');
+}
+
+function senderName(from) {
+  var m = /^"?([^"<]+?)"?\s*<.*>$/.exec(from);
+  return (m ? m[1] : from).trim();
+}
+
+function safe(fn) {
+  try { return fn(); } catch (err) { return { error: String(err) }; }
+}
+
+function json(o) {
+  return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
+}

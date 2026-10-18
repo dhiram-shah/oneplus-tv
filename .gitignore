@@ -5,6 +5,13 @@ launcher/.gradle/
 launcher/build/
 launcher/app/build/
 launcher/local.properties
-# your own TV's dumps (serial, android_id, device names) stay local
-backup/
+# backup/ (this TV's original state: serial, android_id, device names) is committed on purpose;
+# this repo's personal remote is private.
 .DS_Store
+home/.gradle/
+home/build/
+home/app/build/
+home/local.properties
+shots/
+# apksigner v4 sidecar files
+*.idsig

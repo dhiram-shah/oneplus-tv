@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Direction A (mocks/dir-A-home.png) × 0.75: the TV is 960 × 540 dp. Content leads; the only chrome
+     is the profile avatar and the clock. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <!-- No background here: the window's (@color/bg) is already under it; a second full-screen fill costs
+         GPU time on every frame. -->
+
+    <!-- Full-bleed artwork for whatever is focused. On the top rows it fades out at 410 dp; on deeper
+         rows (Shelf.setBrowsing) it runs to the bottom edge behind the rows. -->
+    <FrameLayout
+        android:id="@+id/heroFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0">
+
+        <ImageView
+            android:id="@+id/heroArt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="@null" />
+
+        <!-- Darkens the fallback landscape so it reads as a backdrop, not content. -->
+        <View
+            android:id="@+id/heroDim"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/bg"
+            android:alpha="0" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/hero_scrim_left" />
+
+        <View
+            android:id="@+id/heroScrimBrowse"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/hero_scrim_browse"
+            android:alpha="0" />
+
+        <!-- Top rows: the art ends at 372 dp, solid background below. -->
+        <LinearLayout
+            android:id="@+id/heroCut"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="142dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="230dp"
+                android:background="@drawable/hero_scrim_bottom" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/bg" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/heroMeta"
+        android:layout_width="460dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="48dp"
+        android:layout_marginBottom="264dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/heroEyebrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#BFF5F6F8"
+            android:textSize="11sp"
+            android:fontVariationSettings="'wght' 500"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/heroTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/fg"
+            android:textSize="42sp"
+            android:fontVariationSettings="'wght' 650, 'opsz' 32"
+            android:letterSpacing="-0.025"
+            android:lineSpacingMultiplier="0.92"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/heroSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="#B8F5F6F8"
+            android:textSize="12sp"
+            android:fontVariationSettings="'wght' 420"
+            android:lineSpacingMultiplier="1.25"
+            android:maxLines="7"
+            android:ellipsize="end" />
+
+        <LinearLayout
+            android:id="@+id/heroProgressRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/heroProgress"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="135dp"
+                android:layout_height="3dp"
+                android:max="1000"
+                android:progressDrawable="@drawable/progress_track" />
+
+            <TextView
+                android:id="@+id/heroProgressText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:textColor="#99F5F6F8"
+                android:textSize="10sp"
+                android:fontFeatureSettings="tnum" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Rows, scrolled in code. Child 0 = apps, child 1 = inputs and settings (compact), child 2 = the
+         day strip, then media rows. -->
+    <com.dhiram.tvhome.ui.RowsScrollView
+        android:id="@+id/rowsScroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:overScrollMode="never"
+        android:fillViewport="true"
+        android:clipChildren="false">
+
+        <LinearLayout
+            android:id="@+id/rows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="300dp"
+            android:paddingBottom="320dp"
+            android:clipChildren="false"
+            android:clipToPadding="false" />
+    </com.dhiram.tvhome.ui.RowsScrollView>
+
+    <TextView
+        android:id="@+id/avatar"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:focusable="true"
+        android:clickable="true"
+        android:textColor="@color/fg"
+        android:textSize="10sp"
+        android:fontVariationSettings="'wght' 600"
+        android:contentDescription="@string/whos_watching" />
+
+    <!-- Header right: weather, then the time. -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|top"
+        android:layout_marginEnd="48dp"
+        android:layout_marginTop="25dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/headWeather"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="18dp"
+        android:drawablePadding="6dp"
+        android:textColor="#BFF5F6F8"
+        android:textSize="13sp"
+        android:fontVariationSettings="'wght' 400"
+        android:fontFeatureSettings="tnum"
+        android:visibility="gone" />
+
+    <TextClock
+        android:id="@+id/clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:format12Hour="h:mm"
+        android:format24Hour="HH:mm"
+        android:textColor="#EBF5F6F8"
+        android:textSize="16sp"
+        android:fontVariationSettings="'wght' 400"
+        android:fontFeatureSettings="tnum" />
+    </LinearLayout>
+</FrameLayout>
