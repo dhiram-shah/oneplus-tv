@@ -1,3 +1,6 @@
+> **This copy is the "Living Room TV" fork for a OnePlus Y Series TV.** What it changes and how to
+> build it: [docs/airplay.md](../docs/airplay.md). Upstream's README follows unchanged.
+
 # AirPlay Receiver for Android
 
 [![Stars](https://img.shields.io/github/stars/jqssun/android-airplay-server)](https://github.com/jqssun/android-airplay-server)

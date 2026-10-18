@@ -1,107 +1,91 @@
-# tv-vibehack
+# oneplus-tv
 
-**Your TV, minus the ads.** Debloat any Android TV / Google TV over ADB and give it a clean,
-tvOS-inspired launcher. Hand the prompt to Claude Code or any coding assistant, answer a few
-questions about which apps you use, and it does the rest on the real TV.
+A OnePlus Y Series Android TV turned into something that feels like an Apple TV: a custom home screen,
+an ambient screensaver, the soundbar as the only speaker, and sharp, low-latency AirPlay from a Mac or
+iPhone. No ads, no sponsored rows, and everything can be undone.
 
-| Stock home screen | After |
-|---|---|
-| ![Stock Google TV home with a sponsored ad](docs/stock-home.jpg) | ![tvOS-style launcher](docs/new-home.jpg) |
+![Home](docs/img/home.jpg)
 
-Everything is reversible: packages are disabled, never uninstalled, and a restore script puts the
-stock launcher back.
+| Inputs and settings, one row down | Your day as a strip | Deeper rows take over the screen |
+|---|---|---|
+| ![Inputs row](docs/img/inputs-row.jpg) | ![Day strip](docs/img/day-strip.jpg) | ![Continue watching](docs/img/deep-row.jpg) |
+
+| Screensaver | Profiles | Inputs |
+|---|---|---|
+| ![Screensaver](docs/img/screensaver.jpg) | ![Who's watching](docs/img/profiles.jpg) | ![Inputs popup](docs/img/inputs-popup.jpg) |
+
+## What's here
+
+| Path | What it is | Docs |
+|---|---|---|
+| [`home/`](home/) | The home screen (`com.dhiram.tvhome`): apps, inputs, your day, Continue Watching, TMDB rows, profiles with PINs, the ambient screensaver and the soundbar guard. Native Java, no Leanback. | [docs/home.md](docs/home.md) |
+| [`airplay/`](airplay/) | The AirPlay receiver, "Living Room TV": a fork of [jqssun/android-airplay-server](https://github.com/jqssun/android-airplay-server) tuned for this TV (1080p, tunneled playback, wakes the TV, back to home on disconnect). Full upstream history is kept. | [docs/airplay.md](docs/airplay.md) |
+| [`airplay-dist/`](airplay-dist/) | Signed receiver APKs: the original F-Droid 0.0.31 (rollback) and our builds. `livingroom-v3.apk` is the one installed. | [docs/airplay.md](docs/airplay.md#rollback) |
+| [`backup/`](backup/) | The TV's state before any change: packages (all, system, third-party, disabled), global/secure/system settings, home activity, IME, memory, `getprop`. | [docs/tv.md](docs/tv.md#the-backup) |
+| [`tools/`](tools/) | Talking to the TV: pure-Python ADB client, APK push, debloat/restore, screenshots, screensaver photo push. | [docs/tv.md](docs/tv.md#talking-to-the-tv) |
+| [`examples/oneplus-y-series-shibuya/`](examples/oneplus-y-series-shibuya/debloat.txt) | The packages disabled on this TV (never uninstalled). | [docs/tv.md](docs/tv.md#debloat) |
+| [`mocks/`](mocks/) | The design directions the home screen and screensaver were picked from (A, B, C). | |
+| [`docs/`](docs/) | These docs, and the [changelog](docs/CHANGELOG.md). | |
 
 ## Quick start
 
-1. On the TV: Settings → Device Preferences → About → press OK on **Build** seven times → back →
-   Developer options → turn on **USB debugging** (and Network/ADB debugging if your TV shows it).
-   Keep the TV on and on the same Wi-Fi as your computer.
-2. Open Claude Code (or your assistant of choice) on your computer and paste the prompt from
-   [`PROMPT.md`](PROMPT.md), filling in your TV model.
-3. Accept the "Allow USB debugging?" prompt on the TV when told to, then answer the checklist
-   questions (which apps you use, which four go in the dock).
-
-That's it. The assistant backs up, debloats, builds and installs the launcher, and verifies each
-step with screenshots from the TV. If you'd rather do it by hand, the pieces are below.
-
-## What's in the repo
-
-| Path | What it is |
-|---|---|
-| [`PROMPT.md`](PROMPT.md) | The prompt. Brand-neutral; the assistant discovers your TV's bloat. |
-| [`launcher/`](launcher/) | The tvOS-style launcher. Edit `app/src/main/res/values/config.xml` for your dock, hidden apps and Live TV package, then run `build-and-install.sh`. |
-| [`tools/tv.py`](tools/tv.py) | Pure-Python ADB client (shell, batch, push, pull). Works where the stock `adb` is blocked. |
-| [`tools/b64push.py`](tools/b64push.py) | Uploads larger files (APKs) as base64 chunks with an md5 check. |
-| [`tools/disable.sh`](tools/disable.sh), [`tools/restore.sh`](tools/restore.sh) | Apply or undo a debloat list. |
-| [`examples/`](examples/) | Per-TV debloat lists. Add yours, see [CONTRIBUTING.md](CONTRIBUTING.md). |
-
-## The launcher
-
-A small native Android TV home screen (`com.gathin.tvhome`), built for sets with 1 GB of RAM:
-
-- Pitch-black background, like Apple TV 4K.
-- A dock at the bottom in a lighter rounded band with the four apps you choose. The shelf above
-  shows the focused dock app's name in large type with an ambient glow sampled from its banner.
-  Press Down and the dock slides up to reveal the rest of your apps in a grid.
-- One translucent glass highlight springs from tile to tile. The focused tile lifts and shows its
-  name.
-- Frosted pills top right: **Inputs** (a dropdown of HDMI ports, AV and Live TV), **Wi-Fi**
-  (shows the network name) and **Settings**. Greeting, a large thin clock and the date top left,
-  set in [Outfit](https://fonts.google.com/specimen/Outfit).
-- Deterministic D-pad navigation, last focused tile remembered, staggered entrance animation.
-  No blur, no video, no network, no background services.
-
-Configure it in [`launcher/app/src/main/res/values/config.xml`](launcher/app/src/main/res/values/config.xml):
-dock order, hidden apps, Live TV package and columns. Build and install with
+You need the TV and a Mac on the same Wi-Fi, with USB debugging on (Settings → Device Preferences →
+About → press OK on **Build** seven times → Developer options → **USB debugging**).
 
 ```bash
-TV_HOST=192.168.1.50 launcher/build-and-install.sh
-```
-
-Needs JDK 17 and the Android SDK (platform 34, build-tools 34.0.0). On macOS:
-`brew install openjdk@17 android-commandlinetools && sdkmanager "platforms;android-34" "build-tools;34.0.0"`.
-
-## Talking to the TV by hand
-
-```bash
+# 1. Tools (once)
 python3 -m venv tools/venv && tools/venv/bin/pip install -r tools/requirements.txt
-export TV_HOST=192.168.1.50                                   # your TV's IP
-tools/venv/bin/python -I tools/tv.py --probe                 # model, Android version, firmware
-tools/venv/bin/python -I tools/tv.py 'pm list packages'      # one command
-printf 'cmd1\ncmd2\n' | tools/venv/bin/python -I tools/tv.py --batch
-tools/disable.sh examples/xiaomi-mi-tv-4a/debloat.txt        # apply a list
-tools/restore.sh examples/xiaomi-mi-tv-4a/debloat.txt        # undo it, restore stock launcher
+brew install openjdk@17 android-commandlinetools
+sdkmanager "platforms;android-34" "platforms;android-36" "build-tools;34.0.0" "build-tools;35.0.0" "ndk;27.0.12077973" "cmake;3.22.1"
+git submodule update --init --depth 1        # the receiver's third-party sources
+export TV_HOST=192.168.68.113                # the TV's IP
+tools/venv/bin/python -I tools/tv.py --probe # accept "Allow USB debugging?" on the TV the first time
+
+# 2. Home screen: keys go in home/local.properties (git-ignored), see docs/home.md#keys
+home/build-and-install.sh
+
+# 3. AirPlay receiver: build, sign, install (docs/airplay.md#build-and-install)
 ```
 
-### Gotchas we hit
+`home/build-and-install.sh` builds a release APK, installs it, compiles it ahead of time, grants what
+it needs over ADB and makes it the home screen and screensaver. It is safe to re-run, and it only
+jumps to home if home was already on screen.
 
-- **macOS: `adb connect` says "No route to host"** while the port is clearly open. Recent macOS
-  treats the Google-signed `adb` as its own app under Local Network privacy and silently blocks it.
-  `tools/tv.py` avoids the binary entirely.
-- **No "wireless debugging" toggle** on some TVs (Xiaomi among them). USB debugging alone opens
-  network ADB on port 5555.
-- **Chained `pm` commands** (`pm disable a; pm disable b`) may silently stop after the first. Run
-  one per shell call; `--batch` does this.
-- **Large pushes hang** through the Python client. Use `tools/b64push.py` for APKs.
-- **Disable the stock launcher only after the new one is installed**, or the Home button lands on
-  a factory test app.
-- **Third-party launchers** often charge for basics like a custom wallpaper. Hence `launcher/`.
-- **No on-screen keyboard** after switching launchers (seen on Xiaomi): the default input method
-  pointed at a Baidu IME that isn't installed. Fix with
-  `tools/tv.py 'ime set com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME'`.
+## Living with it
 
-## Supported TVs
+- **Volume:** the soundbar's own remote. The TV's volume is held at 0 so its speakers stay silent
+  (the soundbar is on optical, which ignores the TV volume). The Mac/iPhone slider still works during
+  AirPlay. See [docs/home.md](docs/home.md#soundbar-guard).
+- **AirPlay:** on the Mac or iPhone, Screen Mirroring → **Living Room TV**. The TV wakes and shows it;
+  when you disconnect it goes back to home.
+- **Profiles:** press Up from the apps row to the avatar, then OK. Hold OK on a profile to rename it,
+  lock it with a PIN or remove it.
+- **Screensaver photos:** `tools/push-photo.sh photo.jpg` pins your own; `--clear` goes back to the
+  daily photos.
 
-Anything running Android TV or Google TV: Xiaomi/Redmi, TCL, Hisense, Sony, OnePlus, Realme,
-Nvidia Shield and most others. Not Samsung Tizen, LG webOS or Amazon Fire TV (different OS, no ADB
-launcher replacement). Tested so far on the models in [`examples/`](examples/).
+## Undo
 
-## Contributing
+- Home screen: `tools/restore.sh examples/oneplus-y-series-shibuya/debloat.txt` re-enables every
+  disabled package, puts the stock launcher and screensaver back and resets animation scales.
+- AirPlay: install `airplay-dist/fdroid-0.0.31.apk` (uninstall ours first; it is signed with a
+  different key).
+- Speakers: `settings put secure enabled_accessibility_services ""` turns the soundbar guard off.
 
-Add your TV's debloat list, improve the launcher, or sharpen the prompt. See
-[CONTRIBUTING.md](CONTRIBUTING.md).
+## Secrets
 
-## Licence
+None are in the repo. The home app reads `tmdb.key` and `feed.<profile>` from
+`home/local.properties`; the Apps Script feed keeps `TOKEN`, `SUPABASE_URL` and
+`SUPABASE_SERVICE_KEY` in its own script properties. `tools/adbkey` (the ADB key the TV trusts) and
+`tools/venv` are git-ignored.
 
-MIT, see [`LICENSE`](LICENSE). The Outfit typeface is under the SIL Open Font License, see
-`launcher/FONT-LICENSE-OFL.txt`.
+## Credits and licences
+
+- Started from [Gathin23/tv-vibehack](https://github.com/Gathin23/tv-vibehack) (MIT, see
+  [`LICENSE`](LICENSE)): `tools/`, the debloat approach, and the template's own launcher, kept in
+  [`launcher/`](launcher/) with its [`PROMPT.md`](PROMPT.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).
+- `airplay/` is GPL-3.0 ([`airplay/LICENSE`](airplay/LICENSE)), from
+  [jqssun/android-airplay-server](https://github.com/jqssun/android-airplay-server), built on
+  [UxPlay](https://github.com/FDH2/UxPlay) (GPL-3.0), libplist, OpenSSL and FFmpeg.
+- Fonts: Inter and Geist Mono, SIL Open Font License (`home/FONT-LICENSE-*.txt`).
+- Artwork and metadata from TMDB; weather from Open-Meteo; screensaver photos from Bing, Google Earth
+  View and the Art Institute of Chicago.
