@@ -2,7 +2,7 @@
 
 "Living Room TV": [jqssun/android-airplay-server](https://github.com/jqssun/android-airplay-server)
 0.0.31 (GPL-3.0, built on UxPlay), with changes for this TV. The fork's history, upstream's included,
-is in `git log -- airplay`. Package `io.github.jqssun.airplay`, signed with the local debug key.
+came in with the merge "Bring the AirPlay receiver in-tree": `git log 5fd8b61^2`. Package `io.github.jqssun.airplay`, signed with the local debug key.
 
 ## What the fork changes, and why
 
