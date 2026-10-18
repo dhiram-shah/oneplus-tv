@@ -1,0 +1,5 @@
+[submodule "airplay"]
+	path = airplay
+	url = https://github.com/dhiram-shah/living-room-airplay.git
+	branch = living-room
+	ignore = dirty
