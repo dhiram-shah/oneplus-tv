@@ -641,7 +641,8 @@ public class MainActivity extends Activity implements CardAdapter.Listener {
         for (Feed.Account a : today.accounts) {
             if (a.unread < 0) continue;
             String head = a.unread + " unread" + (a.important > 0 ? ", " + a.important + " important" : "");
-            line(sb, a.label(), head + (a.top.isEmpty() ? "" : "  ·  " + a.top.get(0).from + ": " + a.top.get(0).subject));
+            String top = a.top.isEmpty() ? "" : "  ·  " + a.top.get(0).from + ": " + a.top.get(0).subject;
+            line(sb, a.label(), clip(head + top, 64));   // one line: a wrapped line breaks the tab-stop columns
         }
         if (!today.tasks.isEmpty()) {
             int due = today.dueToday();
@@ -650,7 +651,7 @@ public class MainActivity extends Activity implements CardAdapter.Listener {
         }
         Feed.Metrics m = today.metrics();
         if (m != null && m.occupancy() >= 0) {
-            line(sb, "Flent", String.format(Locale.US, "%.1f%% occupied", m.occupancy())
+            line(sb, "Flent", String.format(Locale.US, m.occMonth >= 0 ? "%.1f%% occupancy" : "%.1f%% occupied", m.occupancy())
                     + (m.winsMonth >= 0 ? "  ·  " + m.winsMonth + " wins this month" : "")
                     + (m.visitors7d >= 0 ? "  ·  " + String.format(Locale.US, "%,d", m.visitors7d) + " visitors this week" : ""));
         }

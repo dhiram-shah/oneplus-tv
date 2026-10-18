@@ -15,6 +15,9 @@
  *   OCCUPANCY_PATH  one row whose `data.counts` has `rooms` and `occupied`
  *   WINS_PATH       one row per win, ending in `<date column>=gte.` (the start date is appended)
  *   VISITORS_PATH   daily rows with a `visitors` column, ending in `<date column>=gte.`
+ *   OCCUPANCY_MONTH_PATH  one row with `cur_month` ("2026-10") and `units[].months[]` of
+ *                   {m, occ_rd, avail_rd}: occupancy as the dashboards define it, occupied
+ *                   room-days / available room-days this month (optional)
  * The feed then adds "flent": occupancy, wins this month/week and website visitors. The key stays
  * in this script; the TV only ever receives the five numbers.
  */
@@ -107,7 +110,7 @@ function tasks() {
 /** Flent numbers via Supabase REST. Days are IST days, matching the Flent dashboards. */
 function flent() {
   var cache = CacheService.getScriptCache();
-  var hit = cache.get('flent');
+  var hit = cache.get('flent-v2');
   if (hit) return JSON.parse(hit);
 
   var snap = supabase(prop('OCCUPANCY_PATH'))[0];
@@ -118,16 +121,37 @@ function flent() {
   var today = istDate(0);
   var monthStart = today.substring(0, 8) + '01';
   var weekStart = istDate(-6);
+  var month = null;
+  try { month = monthOccupancy(); } catch (err) { /* optional: keep the other numbers */ }
   var out = {
     occupied: occupied,
     rooms: rooms,
+    occupancyMonth: month && month.pct,
+    month: month && month.month,
     winsMonth: count(prop('WINS_PATH') + monthStart),
     winsWeek: count(prop('WINS_PATH') + weekStart),
     visitors7d: supabase(prop('VISITORS_PATH') + weekStart)
         .reduce(function (s, r) { return s + (r.visitors || 0); }, 0)
   };
-  cache.put('flent', JSON.stringify(out), 900);
+  cache.put('flent-v2', JSON.stringify(out), 900);
   return out;
+}
+
+/** This month's occupancy, occupied ÷ available room-days across all units, as the dashboards show it. */
+function monthOccupancy() {
+  var path = prop('OCCUPANCY_MONTH_PATH');
+  if (!path) return null;
+  var row = supabase(path)[0];
+  if (!row || !row.units) return null;
+  var occ = 0, avail = 0;
+  row.units.forEach(function (u) {
+    (u.months || []).forEach(function (m) {
+      if (m.m !== row.cur_month) return;
+      occ += Number(m.occ_rd) || 0;
+      avail += Number(m.avail_rd) || 0;
+    });
+  });
+  return avail > 0 ? { pct: Math.round(occ / avail * 1000) / 10, month: row.cur_month } : null;
 }
 
 function supabase(path, headers) {

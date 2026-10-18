@@ -37,7 +37,12 @@ public final class Feed {
     public static final class Metrics {
         public int occupied = -1, rooms = -1, winsMonth = -1, winsWeek = -1, visitors7d = -1;
 
+        public float occMonth = -1f;   // occupied ÷ available room-days this month (the dashboards' occupancy)
+        public String month;           // "2026-10"
+
+        /** The month's occupancy when the feed has it, else rooms occupied right now ÷ rooms. */
         public float occupancy() {
+            if (occMonth >= 0) return occMonth;
             return rooms > 0 ? occupied * 100f / rooms : -1f;
         }
     }
@@ -126,6 +131,8 @@ public final class Feed {
             Metrics m = new Metrics();
             m.occupied = fl.optInt("occupied", -1);
             m.rooms = fl.optInt("rooms", -1);
+            m.occMonth = (float) fl.optDouble("occupancyMonth", -1);
+            m.month = fl.optString("month", null);
             m.winsMonth = fl.optInt("winsMonth", -1);
             m.winsWeek = fl.optInt("winsWeek", -1);
             m.visitors7d = fl.optInt("visitors7d", -1);

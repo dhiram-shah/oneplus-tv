@@ -232,8 +232,11 @@ public class AmbientDream extends DreamService {
         Feed.Metrics m = t.metrics();
         if (m != null && m.occupancy() >= 0) {
             List<String[]> f = new ArrayList<>();
-            f.add(new String[]{"Occupancy", String.format(Locale.US, "%.1f%%", m.occupancy()),
-                    m.occupied + " of " + m.rooms + " rooms"});
+            // The month's room-day occupancy (as the dashboards show it); rooms let right now is a
+            // different number, so it's labelled as such underneath.
+            f.add(new String[]{m.occMonth >= 0 ? "Occupancy " + new SimpleDateFormat("MMM", Locale.ENGLISH).format(new Date()) : "Occupied now",
+                    String.format(Locale.US, "%.1f%%", m.occupancy()),
+                    m.rooms > 0 ? m.occupied + " of " + m.rooms + " rooms now" : ""});
             if (m.winsMonth >= 0) {
                 f.add(new String[]{"Wins " + new SimpleDateFormat("MMM", Locale.ENGLISH).format(new Date()),
                         String.valueOf(m.winsMonth), m.winsWeek >= 0 ? m.winsWeek + " this week" : ""});

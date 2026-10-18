@@ -11,6 +11,8 @@ Newest first.
   upstream history, replacing the submodule), the APKs and these docs.
 
 **Home screen**
+- Flent occupancy is now the month's room-day occupancy, matching the dashboards, instead of rooms
+  occupied right now; the screensaver shows both, labelled apart.
 - Layout: apps (row 1), a compact row of inputs, AirPlay and Settings (row 2), the day as a strip
   (row 3), then the media rows. Any plugged-in HDMI port gets a jump tile, updated live.
 - Profile pictures from `config.xml`; Dhiram's is the dhiram.com brick.

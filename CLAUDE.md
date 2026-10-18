@@ -26,8 +26,9 @@ original backup (`backup/`) is git-ignored and stays local. Remote `origin` is t
 
 ## Secrets (names only, never committed)
 - `home/local.properties`: `tmdb.key`, `feed.<profile id>` (web-app URL with `?k=TOKEN`).
-- Apps Script properties: `TOKEN`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `OCCUPANCY_PATH`,
-  `WINS_PATH`, `VISITORS_PATH` (Flent table names stay out of the repo).
+- Apps Script properties (or its project-only `Config.js`): `TOKEN`, `SUPABASE_URL`,
+  `SUPABASE_SERVICE_KEY`, `OCCUPANCY_PATH`, `OCCUPANCY_MONTH_PATH`, `WINS_PATH`, `VISITORS_PATH`
+  (Flent table names stay out of the repo).
 - `tools/adbkey` (the key the TV trusts). Git-ignored with `tools/venv`, `shots/`, `*.idsig`, `backup/`.
 - The repo is public: never commit `backup/`, real feed samples (mail, tasks, Flent numbers),
   Flent schema/table names, or screenshots showing Flent numbers.
@@ -46,6 +47,8 @@ original backup (`backup/`) is git-ignored and stays local. Remote `origin` is t
 - Tunneled video must never drop a frame (corrupts until the next IDR).
 - Install script must not pull the user out of a film: it only goes home if home was showing.
 - Live sends: none here; nothing in this repo messages anyone.
+- Occupancy = the month's occupied ÷ available room-days (Flent dashboards' definition). Rooms
+  occupied right now is a different metric: never label it "occupancy".
 
 ## Docs
 | Doc | Covers |

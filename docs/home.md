@@ -74,9 +74,14 @@ One Apps Script project per Google account publishes unread mail, today's and to
 open tasks as JSON. Setup is in the file's header: paste it, add the Google Tasks service, set the
 script property `TOKEN`, deploy as a web app ("Execute as: Me", "Anyone"), and put the URL plus
 `?k=<TOKEN>` in `local.properties`. On the Flent account, script properties `SUPABASE_URL`,
-`SUPABASE_SERVICE_KEY` and three PostgREST queries (`OCCUPANCY_PATH`, `WINS_PATH`, `VISITORS_PATH`,
-described in the file's header) add occupancy, wins and visitors. The key and the queries stay in
-the Apps Script project, not in this repo, and the TV only receives the numbers.
+`SUPABASE_SERVICE_KEY` and PostgREST queries (`OCCUPANCY_PATH`, `OCCUPANCY_MONTH_PATH`, `WINS_PATH`,
+`VISITORS_PATH`, described in the file's header) add occupancy, wins and visitors. The key and the
+queries stay in the Apps Script project, not in this repo, and the TV only receives the numbers.
+
+Occupancy is the month's, as Flent's dashboards define it: occupied room-days ÷ available room-days
+(`OCCUPANCY_MONTH_PATH`), shown as "NN.N% occupancy" / "Occupancy Oct". Rooms occupied right now
+(`OCCUPANCY_PATH`) is a different number and only appears as "N of M rooms now" under it; if
+the monthly query fails, the TV falls back to it, labelled "occupied", never "occupancy".
 
 Every setting can be a script property or an entry in a `Config.gs` that exists only in the Apps
 Script project (`var CONFIG = { TOKEN: '…', … }`; `prop()` checks properties first). That makes the
