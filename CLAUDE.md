@@ -3,8 +3,8 @@
 ## Project
 Dhiram's OnePlus Y Series Android TV (Android 11, `armeabi-v7a`, 1280 × 720 UI) made tvOS-like: a
 custom home screen + screensaver (`home/`), an AirPlay receiver fork (`airplay/`), tools to drive the
-TV over ADB (`tools/`), and the TV's original backup (`backup/`). Private repo
-`dhiram-shah/oneplus-tv` (remote `personal`). Remote `origin` is the template author's
+TV over ADB (`tools/`). **Public** repo `dhiram-shah/oneplus-tv` (remote `personal`). The TV's
+original backup (`backup/`) is git-ignored and stays local. Remote `origin` is the template author's
 `Gathin23/tv-vibehack`: **never push to origin**.
 
 ## Tech stack
@@ -26,8 +26,11 @@ TV over ADB (`tools/`), and the TV's original backup (`backup/`). Private repo
 
 ## Secrets (names only, never committed)
 - `home/local.properties`: `tmdb.key`, `feed.<profile id>` (web-app URL with `?k=TOKEN`).
-- Apps Script properties: `TOKEN`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`.
-- `tools/adbkey` (the key the TV trusts). Git-ignored with `tools/venv`, `shots/`, `*.idsig`.
+- Apps Script properties: `TOKEN`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `OCCUPANCY_PATH`,
+  `WINS_PATH`, `VISITORS_PATH` (Flent table names stay out of the repo).
+- `tools/adbkey` (the key the TV trusts). Git-ignored with `tools/venv`, `shots/`, `*.idsig`, `backup/`.
+- The repo is public: never commit `backup/`, real feed samples (mail, tasks, Flent numbers),
+  Flent schema/table names, or screenshots showing Flent numbers.
 
 ## Build & verify
 - Home: `TV_HOST=192.168.68.113 home/build-and-install.sh`, then screenshots with `tools/shot.sh`.

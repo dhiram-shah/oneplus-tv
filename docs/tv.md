@@ -55,7 +55,9 @@ tools/restore.sh examples/oneplus-y-series-shibuya/debloat.txt   # also restores
 
 ## The backup
 
-[`backup/`](../backup/) is the TV as it was before any change, taken over ADB:
+`backup/` is the TV as it was before any change, taken over ADB. It lives only on the owner's
+machine: git-ignored and not published, because it identifies this TV (serial, `android_id`,
+Bluetooth MAC). Take your own with `tools/tv.py` before changing anything:
 
 | File | Contents |
 |---|---|
@@ -66,8 +68,7 @@ tools/restore.sh examples/oneplus-y-series-shibuya/debloat.txt   # also restores
 | `ime.txt` | Input methods and the default |
 | `mem.txt` | Memory at the time |
 
-It identifies this TV (serial, `android_id`, device names), which is why the repo is private. To put a
-setting back: find it in the matching file, then `tools/tv.py 'settings put <namespace> <key> <value>'`.
+To put a setting back: find it in the matching file, then `tools/tv.py 'settings put <namespace> <key> <value>'`.
 `airplay-dist/fdroid-0.0.31.apk` is the receiver as originally installed.
 
 ## Settings changed from stock

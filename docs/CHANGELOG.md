@@ -5,8 +5,10 @@ Newest first.
 ## 2026-10-18
 
 **Repo**
-- One private repo, `dhiram-shah/oneplus-tv`, for everything: the home app, the receiver (merged in
-  with its upstream history, replacing the submodule), the APKs, the TV backup and these docs.
+- Made public. The TV backup stays local (git-ignored); the Flent feed's queries moved to Apps
+  Script properties; unused sample feeds removed. History rewritten so none of it is recoverable.
+- One repo, `dhiram-shah/oneplus-tv`, for everything: the home app, the receiver (merged in with its
+  upstream history, replacing the submodule), the APKs and these docs.
 
 **Home screen**
 - Layout: apps (row 1), a compact row of inputs, AirPlay and Settings (row 2), the day as a strip
@@ -32,5 +34,5 @@ Newest first.
 - 1080p from the sender, named "Living Room TV", wakes the TV and comes to the front on connect.
 
 **TV**
-- Backed up (`backup/`), debloated (12 packages disabled), stock launcher replaced, ambient
+- Backed up (`backup/`, kept local), debloated (12 packages disabled), stock launcher replaced, ambient
   screensaver with daily photos.

@@ -5,8 +5,6 @@ launcher/.gradle/
 launcher/build/
 launcher/app/build/
 launcher/local.properties
-# backup/ (this TV's original state: serial, android_id, device names) is committed on purpose;
-# this repo's personal remote is private.
 .DS_Store
 home/.gradle/
 home/build/
@@ -15,3 +13,6 @@ home/local.properties
 shots/
 # apksigner v4 sidecar files
 *.idsig
+
+# The TV backup (serial, android_id, Bluetooth MAC) stays on this machine; the repo is public.
+backup/

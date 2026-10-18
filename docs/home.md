@@ -73,9 +73,10 @@ feed.<profile id>=<Apps Script web-app URL>?k=<TOKEN>[,<another account's URL>]
 One Apps Script project per Google account publishes unread mail, today's and tomorrow's events and
 open tasks as JSON. Setup is in the file's header: paste it, add the Google Tasks service, set the
 script property `TOKEN`, deploy as a web app ("Execute as: Me", "Anyone"), and put the URL plus
-`?k=<TOKEN>` in `local.properties`. On the Flent account, script properties `SUPABASE_URL` and
-`SUPABASE_SERVICE_KEY` add occupancy, wins and visitors; the key stays in the script and the TV only
-receives the numbers.
+`?k=<TOKEN>` in `local.properties`. On the Flent account, script properties `SUPABASE_URL`,
+`SUPABASE_SERVICE_KEY` and three PostgREST queries (`OCCUPANCY_PATH`, `WINS_PATH`, `VISITORS_PATH`,
+described in the file's header) add occupancy, wins and visitors. The key and the queries stay in
+the script's properties, not in this repo, and the TV only receives the numbers.
 
 ## Configuration (`home/app/src/main/res/values/config.xml`)
 

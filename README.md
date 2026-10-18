@@ -21,7 +21,7 @@ iPhone. No ads, no sponsored rows, and everything can be undone.
 | [`home/`](home/) | The home screen (`com.dhiram.tvhome`): apps, inputs, your day, Continue Watching, TMDB rows, profiles with PINs, the ambient screensaver and the soundbar guard. Native Java, no Leanback. | [docs/home.md](docs/home.md) |
 | [`airplay/`](airplay/) | The AirPlay receiver, "Living Room TV": a fork of [jqssun/android-airplay-server](https://github.com/jqssun/android-airplay-server) tuned for this TV (1080p, tunneled playback, wakes the TV, back to home on disconnect). Full upstream history is kept. | [docs/airplay.md](docs/airplay.md) |
 | [`airplay-dist/`](airplay-dist/) | Signed receiver APKs: the original F-Droid 0.0.31 (rollback) and our builds. `livingroom-v3.apk` is the one installed. | [docs/airplay.md](docs/airplay.md#rollback) |
-| [`backup/`](backup/) | The TV's state before any change: packages (all, system, third-party, disabled), global/secure/system settings, home activity, IME, memory, `getprop`. | [docs/tv.md](docs/tv.md#the-backup) |
+| `backup/` | The TV's state before any change (packages, settings, `getprop`). Kept on the owner's machine only: git-ignored, not published, because it identifies the TV. | [docs/tv.md](docs/tv.md#the-backup) |
 | [`tools/`](tools/) | Talking to the TV: pure-Python ADB client, APK push, debloat/restore, screenshots, screensaver photo push. | [docs/tv.md](docs/tv.md#talking-to-the-tv) |
 | [`examples/oneplus-y-series-shibuya/`](examples/oneplus-y-series-shibuya/debloat.txt) | The packages disabled on this TV (never uninstalled). | [docs/tv.md](docs/tv.md#debloat) |
 | [`mocks/`](mocks/) | The design directions the home screen and screensaver were picked from (A, B, C). | |
@@ -70,13 +70,16 @@ jumps to home if home was already on screen.
 - AirPlay: install `airplay-dist/fdroid-0.0.31.apk` (uninstall ours first; it is signed with a
   different key).
 - Speakers: `settings put secure enabled_accessibility_services ""` turns the soundbar guard off.
+- Anything else: compare against the local `backup/` (not in the repo, see
+  [docs/tv.md](docs/tv.md#the-backup)).
 
 ## Secrets
 
 None are in the repo. The home app reads `tmdb.key` and `feed.<profile>` from
-`home/local.properties`; the Apps Script feed keeps `TOKEN`, `SUPABASE_URL` and
-`SUPABASE_SERVICE_KEY` in its own script properties. `tools/adbkey` (the ADB key the TV trusts) and
-`tools/venv` are git-ignored.
+`home/local.properties`; the Apps Script feed keeps `TOKEN`, `SUPABASE_URL`,
+`SUPABASE_SERVICE_KEY` and its three queries (`OCCUPANCY_PATH`, `WINS_PATH`, `VISITORS_PATH`) in its
+own script properties. `tools/adbkey` (the ADB key the TV trusts), `tools/venv` and the TV backup
+(`backup/`) are git-ignored.
 
 ## Credits and licences
 
